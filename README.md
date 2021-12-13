@@ -71,8 +71,6 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
 A C-based library written for HD44780 based dot-matrix displays driven by Xilinx MicroBlaze softcore.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
