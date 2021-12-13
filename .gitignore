@@ -1,0 +1,44 @@
+# Build and object files
+/build/
+/CMakeFiles/
+/cmake-build-*/
+
+# Compiled object files
+*.o
+*.out
+*.obj
+*.a
+*.so
+*.dll
+*.exe
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+install_manifest.txt
+
+# Doxygen
+/docs/
+/html/
+/latex/
+*.tag
+
+# Editor/project files
+*.swp
+*~
+*.log
+.vscode/
+.idea/
+.DS_Store
+
+# Test or simulation outputs
+lcd_demo
+lcd_test
+
+# OS and metadata
+Thumbs.db
+ehthumbs.db
+Desktop.ini
