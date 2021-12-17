@@ -208,12 +208,14 @@
 // Compiler :               GNU-C, Xilinx SDK resp. Eclipse                                 //
 // Target   :               MicroBlaze with PL-Bus resp. PLB                                //
 // Created  :               08.02.17                                                        //
-// Changed  :               05.04.17                                                        //
+// Changed  :               17.12.21                                                        //
 // Version  :               1.0                                                             //
 // Summary  :               LCD library to communicate and print with resp. on it           //
 // Revision :               - Added print_lcd (), which allows entering format-string.      //
 //                          - Added d = int, o(ctal), p(ointer) and n format specifier.     //
 //                          - Added x = hex format specifier.                               //
+//                          - Datatype of the argument was changed to correspond            //
+//                            to the changes in Header-file.                                //
 //------------------------------------------------------------------------------------------//
 
 #include "lcd.h"
@@ -224,11 +226,8 @@
 
 inline void lcd_init (void) {       // Sets display direction from left-to-right and cursor placement in incremental way.
     lcd_command (LCD_FunctionSet);
-//  lcd_command (0x3C);
     lcd_command (LCD_DisplayOn & ~LCD_CursorShowBlink);
-//  lcd_command (0x0C);
     lcd_command (LCD_Clear);
-//  lcd_command (0x06);
     lcd_command (LCD_EntryMode);
 }
 
@@ -243,8 +242,8 @@ void lcd_clear (void)   {                                               // Clear
     lcd_command (LCD_Clear);
 }
 
-void lcd_command (uint32_t command) {                                   // Writes out command value in 8-bit format.
-//  command   = reverse_char (command);                                 // Swap the command bits.
+void lcd_command (lcd_command_t command) {                              // Writes out command value in 8-bit format.
+//  command   = reverse_char (command);                                 // Swap the command bits. Only necessary if the MicroBlaze registers follow Big-Endian.
     command <<= 4;                                                      // Shift command bits 4 left, in order to not get in hassle with control-signals (R/W, RS and EN).
 
     XGpio_DiscreteWrite (&GPIO_LCD, 1, (((command | en) & ~rs) & rw));  // Send a command.
