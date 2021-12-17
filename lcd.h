@@ -208,13 +208,14 @@
 // Compiler :               GNU-C, Xilinx SDK resp. Eclipse                                 //
 // Target   :               MicroBlaze with PL-Bus resp. PLB                                //
 // Created  :               08.02.17                                                        //
-// Changed  :               28.03.17                                                        //
+// Changed  :               17.12.21                                                        //
 // Version  :               1.0                                                             //
 // Summary  :               LCD library to communicate and print with resp. on it           //
 // Revision :               - Type safety for GNUC included in order to make the code safe, //
 //                            when using lcd_print ().                                      //
-//                          - Removed type-safety, cause the GNU-C of old Xilinx SDK        //
-//                            does follow the C89-Standard.                                 //
+//                          - Uncommented type-safety check, cause the GNU-C compiler of    //
+//                            old Xilinx SDK uses the old C89-Standard.                     //
+//                          - #defines are commented out and replaced by enums.             //
 //------------------------------------------------------------------------------------------//
 
 /******************************* Program Notes ******************************
@@ -274,7 +275,7 @@
 //******************************************************************
 // Defines
 //******************************************************************
-
+/*
 #define LCD_Clear           0x01        // Replaces all characters with ASCII 'space'.
 #define LCD_Home            0x02        // Returns the cursor to first position on first line.
 #define LCD_EntryMode       0x06        // Shifts cursor from left to right on read/write.
@@ -284,6 +285,22 @@
 #define LCD_FunctionReset   0x30        // Resets the LCD.
 #define LCD_CursorShowBlink 0x03        // Show cursor and blink for display/off control.
 #define LCD_SetCursor       0x80        // Sets cursor position.
+*/
+
+//******************************************************************
+// LCD Commands
+//******************************************************************
+typedef enum LCD_Commands {
+  LCD_Clear = 0x01,
+  LCD_Home = 0x02,
+  LCD_EntryMode = 0x06,
+  LCD_DisplayOff = 0x08,
+  LCD_DisplayOn = 0x0C,
+  LCD_FunctionSet = 0x38,
+  LCD_FunctionReset = 0x30,
+  LCD_CursorShowBlink = 0x03,
+  LCD_SetCursor = 0x80
+} lcd_command_t;
 
 //******************************************************************
 // Function prototypes
@@ -306,7 +323,7 @@
 
 void lcd_init               (void);
 void lcd_clear              (void);
-void lcd_command            (uint32_t command);
+void lcd_command            (lcd_command_t command);
 void lcd_write              (charptr_t string);
 void lcd_write_xy           (charptr_t string, int row, int column);
 void lcd_write_char         (int ascii);
