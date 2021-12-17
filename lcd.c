@@ -241,7 +241,6 @@ void lcd_clear (void)   {                                               // Clear
     lcd_write_xy ("                ", 4, 1);                            // Fill the LCD with spaces.
 */
     lcd_command (LCD_Clear);
-
 }
 
 void lcd_command (uint32_t command) {                                   // Writes out command value in 8-bit format.
@@ -260,7 +259,7 @@ void lcd_write (charptr_t string)   {                                   // Write
     while (*string) {                                                   // Same as *string != '\0'; Circles around while the string termination char won't appear.
         lcd_write_char (*string);                                       // Put the char on LCD.
         string++;                                                       // Jump to next array element.
-}
+    }
 }
 
 void lcd_write_xy (charptr_t string, int row, int column)   {           // Writes out a string, although one char by another, in addition at defined place.
@@ -271,7 +270,7 @@ void lcd_write_xy (charptr_t string, int row, int column)   {           // Write
         lcd_write_char (*string);                                       // Put the char on LCD.
         string++;                                                       // Jump to next array element.
         column++;                                                       // Jump to next sign on LCD.
-}
+    }
 }
 
 void lcd_write_char (int ascii) {                                       // Puts the dedicated char on LCD.
@@ -284,7 +283,6 @@ void lcd_write_char (int ascii) {                                       // Puts 
     XGpio_DiscreteWrite (&GPIO_LCD, 1, disable);                        // Disable LCD to receive something.
     MB_Sleep (10);                                                      // Take a nap, my sweety.
 }
-
 
 void lcd_print (charptr_t string, ...)  {                               // Writes out a string, like lcd_write, in addition, it accepts format-string and multiple arguments.
     va_list arguments;                                                  // Initialize complex variable by the provided data type by stdarg.h.
@@ -315,28 +313,27 @@ void lcd_print (charptr_t string, ...)  {                               // Write
                                 prc = *string - '0';                                // Now get the precision number.
                                 for (counter = 1; counter <= prc; counter++) {      // Loop through until the precision is met.
                                     mul *= 10;                                      // Multiply by 10 in order to get the maximum number of significant value after comma.
-}
+                                }
                                 thousandths = abs (((double) nr1 - whole) * mul);   // Multiply the number with only comma values by previously calculated precision variable.
-}
+                            }
                             else {                                                  // No precision initiator.
                                 thousandths = abs (((double) nr1 - whole) * 1000);  // Multiply the number with only comma values by default precision of three significants after comma.
-}
+                            }
                             if (nr1 < 0 && nr1 > -1)        {                       // Check if the value is in minus area
                                 lcd_write ("-0");                                   // Then print a minus before the number, cause -0 can't be saved in int data type and print on LCD.
-}
+                            }
                             else if (nr1 >= 0 && nr1 < 1)   {                       // Check if the value is between 0 and 1.
                                 lcd_write_char ('0');                               // Then print a zero on LCD.
-}
+                            }
                             else    {                                               // Check if the integer before comma is rather not 0 resp. -0.
                                 itoa (whole, str1);                                 // Convert the integer to string.
                                 lcd_write (str1);                                   // Put the integer string on LCD.
-}
+                            }
                             lcd_write_char ('.');                                   // Add a dot on LCD.
                             itoa (thousandths, str1);                               // Convert the integer to string.
 //                          xil_printf ("str1: %s\n", str1);                        // Debug Code. Not necessary for actual design.
                             lcd_write (str1);                                       // Put the integer resp. comma string on LCD.
                             break;
-
                 case 'D':                                                           // Is the format-specifier an integer?
                 case 'I':
                 case 'd':
@@ -344,17 +341,14 @@ void lcd_print (charptr_t string, ...)  {                               // Write
                             itoa (nr2, str1);                                       // Convert the integer to string.
                             lcd_write (str1);                                       // Put the integer string on LCD.
                             break;
-
                 case 'C':                                                           // Is the format-specifier a char?
                 case 'c':   chr = va_arg (arguments, int);                          // Take the next argument and save it.
                             lcd_write_char (chr);                                   // Put the char on LCD.
                             break;
-
                 case 'S':                                                           // Is the format-specifier  a string?
                 case 's':   str1 = va_arg (arguments, charptr_t);                   // Take the next argument and save it.
                             lcd_write (str1);                                       // Write out the string on LCD.
                             break;
-
                 case 'U':                                                           // Is the format-specifier a uint?
                 case 'u':   nr2 = va_arg (arguments, int);                          // Take the next argument and save it.
                             nr2 = abs (nr2);                                        // Convert the int to uint, in order to get rid of the '-'.
@@ -383,22 +377,23 @@ void lcd_print (charptr_t string, ...)  {                               // Write
                                     nr2 /= 8;                                       // Divide by 8 and save it.
                                     itoa (nr2 % 8, str1);                           // Use modulo and convert int to string.
                                     lcd_write (str1);                               // Write out the string.
-}
-}
+                                }
+                            }
                             else    {
                                 itoa (nr2, str1);                                   // Convert the integer to string.
                                 lcd_write (str1);                                   // Put the integer string on LCD.
-}*///                       break;
+                            }                    
+                            break;*/
 //              case 'N':
 //              case 'n':                                                           // According printf, if it's an 'n' then nothing will be printed. This case will be counted as a default value.
                 default:    continue;                                               // If no valid char resp. format-string succeeded, then continue.
-}
-}
+            }
+        }
         else    {                                                       // If there's no format-string initiator.
             lcd_write_char (*string);                                   // Put the char on LCD, along the special chars.
-}
+        }
         string++;                                                       // Jump to next array element.
-}
+    }
     va_end (arguments);                                                 // End of reading further arguments.
 }
 
@@ -415,22 +410,22 @@ void cursor (int row, int column)   {                                   // Set t
 
         case 4: lcd_command (0x80 | (0x50 + (column - 1)));             // Send the command, to set position with dedicated significant value
                 break;
-}
+    }
 }
 
 char special_character (char character) {                               // Returns the right value according CGROM chart by Hitachi if the char is a special character.
     switch (character) {                                                // Check the character.
-        case 'ä':   return 0x84;
+        case 'Ã¤':   return 0x84;
                     break;
-        case 'ö':   return 0x94;
+        case 'Ã¶':   return 0x94;
                     break;
-        case 'ü':   return 0x9A;
+        case 'Ã¼':   return 0x9A;
                     break;
-        case '°':    return 0xDF;
+        case 'Â°':    return 0xDF;
                     break;
         default:    return character;
                     break;
-}
+    }
 }
 
 int reverse_char (int x)    {                                           // Swaps the bits of int variables.
@@ -441,10 +436,10 @@ int reverse_char (int x)    {                                           // Swaps
 
     for (counter = 1; counter <= 8; counter++)  {                       // Loop until the bit significance is met.
         array_8_bit [counter - 1] = x & (1 << (counter - 1));           // Save the bit of the loaded value.
-}
+    }
     for (counter = 8; counter <= 1; counter--)  {                       // Loop until the swap is finished.
         data |= ((array_8_bit [counter - 1] & 0x01) << (counter - 1));  // Mask the bit value.
-}
+    }
     return data;                                                        // return the bit swapped number.
 }
 
@@ -456,7 +451,7 @@ void reverse (char s[]) {                                               // Rever
         c = s [i];                                                      // Cache the char of the highest array element .
         s [i] = s [j];                                                  // Save the char of the lowest of array element at the swapped resp. higher place of array element.
         s [j] = c;                                                      // Save the char of the highest array element as cache.
-}
+    }
 }
 
 void itoa (int n, char s[]) {                                           // Converts integer value to string, extracted from K&Rs book.
@@ -469,7 +464,7 @@ void itoa (int n, char s[]) {                                           // Conve
 
     do {                                                                // Generate digits in reverse order.
         s [i++] = n % 10 + '0';                                         // Get next digit and add shift to the place, where the nr. in ASCII begin.
-}
+    }
     while ((n /= 10) > 0);                                              // Delete it.
 
     if (sign < 0)                                                       // Is it a negative number?
@@ -482,7 +477,7 @@ void itoa (int n, char s[]) {                                           // Conve
 void significant_zero_place (float number)  {                           // If the coordinate values are only 0 then the last two significant values on LCD aren't updated.
     if (number == (float) 0)    {                                       // Checks if the value is really zero.
         lcd_write ("00           ");                                    // Print two zeroes for each significance along spaces on LCD.
-}
+    }
 }
 
 charptr_t hex_to_ascii (uint32_t hex)   {
@@ -494,12 +489,12 @@ charptr_t hex_to_ascii (uint32_t hex)   {
         temp = (hex >> (counter * 4)) & 0x0F;           // Obtain the 4 bits (F) of hex number.
         if (temp > 9)   {                               // Check if the number is a letter.
           temp += 0x37;                                 // Convert the number to a letter in ASCII.
-}
+        }
         else    {
           temp += 0x30;                                 // Convert the number to ASCII number.
-}
+        }
         string [counter] = temp;                        // Save the ASCII number in string array.
-}
+    }
     string [8] = '\0';                                  // Add the string terminator.
     reverse (string);
     return (string);                                    // Return the hex string.
