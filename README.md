@@ -1,96 +1,62 @@
-# HD44780-library
+# HD44780 LCD Library for MicroBlaze
 
-<div id="top"></div>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
+A lightweight and versatile C library for controlling HD44780-compatible 4x16 LCD displays using an 8-bit interface on Xilinx MicroBlaze platforms with PLB GPIO.
 
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
+## Features
 
+- 8-bit parallel communication
+- Cursor positioning and formatted printing
+- `lcd_print()` supports format strings: `%d`, `%u`, `%x`, `%f`, `%s`, `%c`
+- Special character support: `ä`, `ö`, `ü`, `°`
+- Internal utilities for number/string conversion
 
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <h3 align="center">Best-README-Template</h3>
+## Platform
 
-  <p align="center">
-    An awesome README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
-  </p>
-</div>
+- **Target:** Xilinx MicroBlaze (PLB)
+- **Compiler:** GNU-C (via Xilinx SDK or Eclipse)
+- **Dependencies:** Xilinx BSP (XGpio, MicroBlaze sleep, etc.)
 
+## Example Usage
 
+```c
+lcd_init();
+lcd_write_xy("Hello, World!", 1, 1);
+lcd_print("Temp: %.1f C", 23.5);
+```
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
+## Pin Mapping
 
+| MicroBlaze GPIO | LCD Pin |
+| --- | --- |
+| GPIO_LCD(11) | D7  |
+| GPIO_LCD(10) | D6  |
+| GPIO_LCD(09) | D5  |
+| GPIO_LCD(08) | D4  |
+| GPIO_LCD(07) | D3  |
+| GPIO_LCD(06) | D2  |
+| GPIO_LCD(05) | D1  |
+| GPIO_LCD(04) | RS  |
+| GPIO_LCD(03) | RW  |
+| GPIO_LCD(02) | EN  |
 
-
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-A C-based library written for HD44780 based dot-matrix displays driven by Xilinx MicroBlaze softcore.
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-### Built With
-
-* [Xilinx SDK](https://www.xilinx.com/products/design-tools/ise-design-suite.html)
-* [Xilinx MicroBlaze](https://www.xilinx.com/products/design-tools/microblaze.html)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-### Prerequisites
-
-For a given processor change the GPIO manipulation functions according to your need.
-
-<!-- LICENSE -->
 ## License
 
-Distributed under the Apache 2.0 License. See `LICENSE.txt` for more information.
+This project is licensed under the Apache License 2.0.  
+See `LICENSE` for details.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+```
+Copyright 2017 Selvarajah N.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy at:
+
+   http://www.apache.org/licenses/LICENSE-2.0
+```
+
+## Author
+
+**Selvarajah N.**
+
+- Initial Release: 08.02.2017
+- Last Update: 17.12.2021
