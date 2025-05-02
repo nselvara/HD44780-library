@@ -1,3 +1,22 @@
+/*
+ * Copyright 2025 Selvarajah N.
+ *
+ * This file is part of the HD44780 LCD Library.
+ *
+ * This library is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "lcd.h"
 #include <stdio.h>
 #include <string.h>
@@ -11,11 +30,12 @@ void lcd_init(void) {
 
 void lcd_clear(void) {
     lcd_command(LCD_CMD_CLEAR);
+    lcd_hal_delay_ms(2);
 }
 
 void lcd_command(lcd_command_t cmd) {
-    // TODO: Replace with GPIO write logic
-    (void)cmd;
+    lcd_hal_send_command((uint8_t)cmd);
+    lcd_hal_delay_ms(2);
 }
 
 void lcd_write(const char *str) {
@@ -30,15 +50,15 @@ void lcd_write_at(const char *str, int row, int col) {
 }
 
 void lcd_write_char(char ch) {
-    // TODO: Replace with GPIO data write logic
-    (void)ch;
+    lcd_hal_send_data((uint8_t)lcd_translate_special_char(ch));
+    lcd_hal_delay_ms(1);
 }
 
-void lcd_print(const char *fmt, ...) {
-    char buffer[64];
+void lcd_print_std(const char *format, ...) {
+    char buffer[128];
     va_list args;
-    va_start(args, fmt);
-    vsnprintf(buffer, sizeof(buffer), fmt, args);
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
     va_end(args);
     lcd_write(buffer);
 }
@@ -67,11 +87,80 @@ void lcd_reverse_string(char *str) {
     }
 }
 
-void lcd_itoa(int num, char *buf, size_t bufsize) {
-    snprintf(buf, bufsize, "%d", num);
+void lcd_itoa(int num, char *buffer, size_t buffersize) {
+    snprintf(buffer, buffersize, "%d", num);
 }
 
-const char* lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize) {
-    snprintf(buf, bufsize, "%08X", hex);
-    return buf;
+const char* lcd_hex_to_ascii(uint32_t hex, char *buffer, size_t buffersize) {
+    snprintf(buffer, buffersize, "%08X", hex);
+    return buffer;
+}
+
+void lcd_print_custom(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    while (*format) {
+        if (*format == '%') {
+            format++;
+            switch (*format) {
+                case '%':
+                    lcd_write_char('%');
+                    break;
+                case 'd':
+                case 'i': {
+                    int val = va_arg(args, int);
+                    char buf[12];
+                    lcd_itoa(val, buf, sizeof(buf));
+                    lcd_write(buf);
+                    break;
+                }
+                case 'u': {
+                    unsigned int val = va_arg(args, unsigned int);
+                    char buf[12];
+                    lcd_itoa(val, buf, sizeof(buf));
+                    lcd_write(buf);
+                    break;
+                }
+                case 'x':
+                case 'X': {
+                    unsigned int val = va_arg(args, unsigned int);
+                    char buf[9];
+                    lcd_hex_to_ascii(val, buf, sizeof(buf));
+                    lcd_write(buf);
+                    break;
+                }
+                case 'c': {
+                    char c = (char)va_arg(args, int);
+                    lcd_write_char(c);
+                    break;
+                }
+                case 's': {
+                    const char *str = va_arg(args, const char *);
+                    lcd_write(str);
+                    break;
+                }
+                case 'f': {
+                    double val = va_arg(args, double);
+                    int whole = (int)val;
+                    int frac = abs((int)((val - whole) * 1000));
+                    char buf[12];
+                    lcd_itoa(whole, buf, sizeof(buf));
+                    lcd_write(buf);
+                    lcd_write_char('.');
+                    lcd_itoa(frac, buf, sizeof(buf));
+                    lcd_write(buf);
+                    break;
+                }
+                default:
+                    // unsupported format specifier, skip
+                    break;
+            }
+        } else {
+            lcd_write_char(*format);
+        }
+        format++;
+    }
+
+    va_end(args);
 }
