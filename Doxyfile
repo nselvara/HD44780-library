@@ -1,0 +1,7 @@
+PROJECT_NAME           = "HD44780 LCD Library"
+OUTPUT_DIRECTORY       = docs
+RECURSIVE              = YES
+INPUT                  = include src
+GENERATE_LATEX         = NO
+QUIET                  = YES
+GENERATE_HTML          = YES
