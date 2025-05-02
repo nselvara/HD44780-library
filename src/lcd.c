@@ -22,15 +22,47 @@
 #include <string.h>
 
 void lcd_init(void) {
-    lcd_command(LCD_CMD_FUNCTION_SET);
-    lcd_command(LCD_CMD_DISPLAY_ON);
-    lcd_command(LCD_CMD_CLEAR);
-    lcd_command(LCD_CMD_ENTRY_MODE);
+    lcd_command(LCD_CMD_FUNCTION_SET | LCD_8BIT_MODE | LCD_2LINE_MODE);
+    lcd_command(LCD_CMD_DISPLAY_CONTROL | LCD_DISPLAY_ON);
+    lcd_command(LCD_CMD_CLEAR_DISPLAY);
+    lcd_command(LCD_CMD_ENTRY_MODE_SET | LCD_ENTRY_INCREMENT);
 }
 
 void lcd_clear(void) {
-    lcd_command(LCD_CMD_CLEAR);
+    lcd_command(LCD_CMD_CLEAR_DISPLAY);
     lcd_hal_delay_ms(2);
+}
+
+void lcd_home(void) {
+    lcd_command(LCD_CMD_RETURN_HOME);
+    lcd_hal_delay_ms(2);
+}
+
+void lcd_set_display(bool display_on, bool cursor_on, bool blink_on) {
+    uint8_t cmd = LCD_CMD_DISPLAY_CONTROL;
+    if (display_on) cmd |= LCD_DISPLAY_ON;
+    if (cursor_on)  cmd |= LCD_CURSOR_ON;
+    if (blink_on)   cmd |= LCD_BLINK_ON;
+}
+
+void lcd_set_entry_mode(bool increment, bool shift) {
+    uint8_t cmd = LCD_CMD_ENTRY_MODE_SET;
+    if (increment) cmd |= LCD_ENTRY_INCREMENT;
+    if (shift)     cmd |= LCD_ENTRY_SHIFT;
+    lcd_hal_send_command(cmd);
+}
+
+void lcd_set_function(bool data8bit, bool lines2, bool font5x10) {
+    uint8_t cmd = LCD_CMD_FUNCTION_SET;
+    if (data8bit)  cmd |= LCD_8BIT_MODE;
+    if (lines2)    cmd |= LCD_2LINE_MODE;
+    if (font5x10)  cmd |= LCD_FONT_5x10;
+    lcd_hal_send_command(cmd);
+}
+
+void lcd_goto(uint8_t row, uint8_t col) {
+    static const uint8_t row_offsets[] = { 0x00, 0x40, 0x10, 0x50 };
+    lcd_hal_send_command(0x80 | (col + row_offsets[row % 4]));
 }
 
 void lcd_command(lcd_command_t cmd) {
@@ -65,7 +97,7 @@ void lcd_print_std(const char *format, ...) {
 
 void lcd_set_cursor(int row, int col) {
     static const uint8_t row_offsets[] = { 0x00, 0x40, 0x10, 0x50 };
-    lcd_command(LCD_CMD_SET_CURSOR | (row_offsets[row - 1] + col - 1));
+    lcd_command(LCD_CMD_SET_DDRAM_ADDR | (row_offsets[row - 1] + col - 1));
 }
 
 char lcd_translate_special_char(char ch) {

@@ -29,29 +29,57 @@
 extern "C" {
 #endif
 
+// Add guard-rail to check for compile-time format string checking for printf-like functions
+// This avoids issues on non-GNU compilers (like some ARM vendors or MSVC).
+#if defined(__GNUC__) || defined(__clang__)
+#define LCD_PRINTF_LIKE(fmt, args) __attribute__((format(printf, fmt, args)))
+#else
+#define LCD_PRINTF_LIKE(fmt, args)
+#endif
+
 // LCD Commands
 typedef enum {
-    LCD_CMD_CLEAR = 0x01,
-    LCD_CMD_HOME = 0x02,
-    LCD_CMD_ENTRY_MODE = 0x06,
-    LCD_CMD_DISPLAY_OFF = 0x08,
-    LCD_CMD_DISPLAY_ON = 0x0C,
-    LCD_CMD_FUNCTION_SET = 0x38,
-    LCD_CMD_FUNCTION_RESET = 0x30,
-    LCD_CMD_CURSOR_SHOW_BLINK = 0x03,
-    LCD_CMD_SET_CURSOR = 0x80
+    // Core command instructions
+    LCD_CMD_CLEAR_DISPLAY     = 0x01,
+    LCD_CMD_RETURN_HOME       = 0x02,
+    LCD_CMD_ENTRY_MODE_SET    = 0x04,
+    LCD_CMD_DISPLAY_CONTROL   = 0x08,
+    LCD_CMD_CURSOR_SHIFT      = 0x10,
+    LCD_CMD_FUNCTION_SET      = 0x20,
+    LCD_CMD_SET_CGRAM_ADDR    = 0x40,
+    LCD_CMD_SET_DDRAM_ADDR    = 0x80,
+
+    // Entry mode flags
+    LCD_ENTRY_INCREMENT       = 0x02,
+    LCD_ENTRY_SHIFT           = 0x01,
+
+    // Display control flags
+    LCD_DISPLAY_ON            = 0x04,
+    LCD_CURSOR_ON             = 0x02,
+    LCD_BLINK_ON              = 0x01,
+
+    // Function set flags
+    LCD_8BIT_MODE             = 0x10,
+    LCD_2LINE_MODE            = 0x08,
+    LCD_FONT_5x10             = 0x04
 } lcd_command_t;
 
 // Public API
 void lcd_init(void);
 void lcd_clear(void);
+void lcd_home(void);
+void lcd_set_display(bool display_on, bool cursor_on, bool blink_on);
+void lcd_set_entry_mode(bool increment, bool shift);
+void lcd_set_function(bool data8bit, bool lines2, bool font5x10);
+void lcd_goto(uint8_t row, uint8_t col);
+
 void lcd_command(lcd_command_t command);
 void lcd_write(const char *str);
 void lcd_write_at(const char *str, int row, int col);
 void lcd_write_char(char ch);
 void lcd_set_cursor(int row, int col);
 /// @brief Custom printf-style LCD output (my own implementation)
-void lcd_print_custom(const char *format, ...);
+void lcd_print_custom(const char *format, ...) LCD_PRINTF_LIKE(1, 2);
 /// @brief Standard printf-style LCD output using vsnprintf (if you don't trust mine ;) )
 void lcd_print_std(const char *format, ...);
 
