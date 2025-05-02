@@ -1,62 +1,113 @@
-# HD44780 LCD Library for MicroBlaze
+[![Build Status](https://github.com/nselvara/HD44780-library/actions/workflows/ci.yml/badge.svg)](https://github.com/nselvara/HD44780-library/actions/workflows/ci.yml)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](#)
 
-A lightweight and versatile C library for controlling HD44780-compatible 4x16 LCD displays using an 8-bit interface on Xilinx MicroBlaze platforms with PLB GPIO.
+# HD44780 LCD Library for MicroBlaze (and Beyond)
 
-## Features
+A modern, simulation-capable C library to control HD44780-compatible character LCDs (like 4x16) via an 8-bit parallel interface.
 
-- 8-bit parallel communication
-- Cursor positioning and formatted printing
-- `lcd_print()` supports format strings: `%d`, `%u`, `%x`, `%f`, `%s`, `%c`
-- Special character support: `ä`, `ö`, `ü`, `°`
-- Internal utilities for number/string conversion
+Designed for Xilinx MicroBlaze but adaptable to any embedded platform. Includes full host-side simulation, unit tests, and printf-style rendering support.
 
-## Platform
+---
 
-- **Target:** Xilinx MicroBlaze (PLB)
-- **Compiler:** GNU-C (via Xilinx SDK or Eclipse)
-- **Dependencies:** Xilinx BSP (XGpio, MicroBlaze sleep, etc.)
+## ✨ Features
 
-## Example Usage
+- 8-bit GPIO interface using simple HAL
+- Custom `lcd_print_custom()` and standard `lcd_print_std()` versions
+- 4x16 LCD simulation with terminal output
+- Testable on host system without hardware
+- Cursor control, special character translation
+- Unit-tested & CI-ready
+
+---
+
+## 🛠 Build & Test Instructions
+
+### ✅ Prerequisites
+
+- C compiler (e.g. GCC or Clang)
+- CMake ≥ 3.10
+- Git (for cloning)
+
+### 🔧 Building (with CMake)
+
+```bash
+git clone https://github.com/nselvara/HD44780-library.git
+cd HD44780-library
+mkdir build && cd build
+cmake .. -DUSE_SIMULATION=ON
+make
+```
+
+### ▶️ Running the Demo
+
+```bash
+./lcd_demo
+```
+
+You'll see simulated output like:
+
+```
+----- LCD STATE -----
+CPU Temp: 37.80°C
+Hello, World!
+                
+----------------------
+```
+
+### ✅ Running Unit Tests
+
+```bash
+./lcd_test
+```
+
+All tests run with simulated LCD buffer and assert correctness.
+
+---
+
+## 🔌 Platform Abstraction (HAL)
+
+To use on your own hardware:
+
+Implement two platform-specific functions in a new file:
 
 ```c
-lcd_init();
-lcd_write_xy("Hello, World!", 1, 1);
-lcd_print("Temp: %.1f C", 23.5);
+void lcd_gpio_write(uint8_t data, uint8_t rs, uint8_t rw, uint8_t en);
+void lcd_delay_ms(uint32_t ms);
 ```
 
-## Pin Mapping
+For example, for Xilinx MicroBlaze you'd call `XGpio_DiscreteWrite()` and `usleep()`.
 
-| MicroBlaze GPIO | LCD Pin |
-| --- | --- |
-| GPIO_LCD(11) | D7  |
-| GPIO_LCD(10) | D6  |
-| GPIO_LCD(09) | D5  |
-| GPIO_LCD(08) | D4  |
-| GPIO_LCD(07) | D3  |
-| GPIO_LCD(06) | D2  |
-| GPIO_LCD(05) | D1  |
-| GPIO_LCD(04) | RS  |
-| GPIO_LCD(03) | RW  |
-| GPIO_LCD(02) | EN  |
+---
 
-## License
+## 🧪 Two `lcd_print_xy()` Implementations
 
-This project is licensed under the Apache License 2.0.  
-See `LICENSE` for details.
-
-```
-Copyright 2017 Selvarajah N.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy at:
-
-   http://www.apache.org/licenses/LICENSE-2.0
+```c
+lcd_print_custom("Temp: %d°C", 27);  // My own implementation (it uses less resources)
+lcd_print_std("Temp: %.2f°C", 27.5); // Standard via vsnprintf
 ```
 
-## Author
+Both are available and interchangeable.
 
-**Selvarajah N.**
+---
 
-- Initial Release: 08.02.2017
-- Last Update: 17.12.2021
+## 🧩 File Structure
+
+```
+include/         → Public headers
+src/             → Core source files and simulation HAL
+tests/           → Unit tests with simulated LCD output
+examples/        → CLI demo app with snapshot support
+.github/         → GitHub Actions CI
+```
+
+---
+
+## 🧾 License
+
+This project is licensed under the **LGPL v3.0**.  
+You can use this library in both open and closed-source projects, as long as you publish modifications to the library itself.
+
+See [LICENSE](./LICENSE) for full terms.
+
+---
