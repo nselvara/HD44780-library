@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: sudo apt-get install -y cmake build-essential
+
+      - name: Build project
+        run: |
+          mkdir build && cd build
+          cmake .. -DUSE_SIMULATION=ON
+          make
+
+      - name: Upload binaries
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/lcd_demo
+            build/lcd_test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
