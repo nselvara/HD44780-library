@@ -1,33 +1,51 @@
-cmake_minimum_required(VERSION 3.10)
-project(HD44780_LCD_Library C)
+option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
+option(USE_XILINX_HAL "Use Xilinx GPIO HAL backend" OFF)
+option(ENABLE_DEMO "Enable building example demos" ON)
 
-set(CMAKE_C_STANDARD 99)
+# Install target
+install(TARGETS hd44780
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY include/ DESTINATION include)
 
-# Options
-option(USE_SIMULATION "Use simulation HAL" ON)
+# pkg-config .pc file
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/hd44780.pc.in
+    ${CMAKE_CURRENT_BINARY_DIR}/hd44780.pc
+    @ONLY
+)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hd44780.pc DESTINATION lib/pkgconfig)
 
-# Include directories
-include_directories(include)
-
-# Source files
-set(LCD_SRC
-    src/lcd.c
-    src/lcd_sim.c
-    src/lcd_hal_sim.c
-    src/lcd_gpio_hal.c
+# Library version
+set_target_properties(hd44780 PROPERTIES
+    VERSION 2.0.0
+    SOVERSION 2
 )
 
-if(USE_SIMULATION)
-    list(APPEND LCD_SRC src/lcd_sim.c)
+if(USE_XILINX_HAL)
+    message(STATUS "Using Xilinx GPIO HAL")
+    target_sources(hd44780 PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/hal/LCD_HAL_XILINX_GPIO.c
+    )
 endif()
 
-# Library
-add_library(lcd STATIC ${LCD_SRC})
+if(ENABLE_DEMO)
+  add_executable(lcd_demo_mock_effects demo/lcd_demo_mock_effects.c)
+  target_link_libraries(lcd_demo_mock_effects hd44780)
 
-# Demo executable
-add_executable(lcd_demo examples/demo.c)
-target_link_libraries(lcd_demo PRIVATE lcd)
+  add_executable(lcd_demo_mock_format demo/lcd_demo_mock_format.c)
+  target_link_libraries(lcd_demo_mock_format hd44780)
 
-# Test executable
-add_executable(lcd_test tests/lcd_sim_test.c)
-target_link_libraries(lcd_test PRIVATE lcd)
+  add_executable(lcd_demo_xilinx demo/lcd_demo_xilinx.c)
+  target_link_libraries(lcd_demo_xilinx hd44780)
+endif()
+
+# Add Unity
+add_subdirectory(third_party/unity)
+
+# Add test executable
+add_executable(lcd_test tests/lcd_test.c)
+target_link_libraries(lcd_test unity)
+target_include_directories(lcd_test PRIVATE third_party/unity/src)

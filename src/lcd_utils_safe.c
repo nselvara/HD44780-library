@@ -17,13 +17,20 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef LCD_GPIO_HAL_H_
-#define LCD_GPIO_HAL_H_
-
+#include <stdio.h>
 #include <stdint.h>
+#include <stddef.h> 
 
-// These functions should be implemented per-platform
-void lcd_gpio_write(uint8_t data, uint8_t rs, uint8_t rw, uint8_t en);
-void lcd_delay_ms(uint32_t ms);
+void lcd_itoa(int num, char *buf, size_t bufsize) {
+    if (bufsize == 0) return;
+    snprintf(buf, bufsize, "%d", num);
+}
 
-#endif // LCD_GPIO_HAL_H_
+const char* lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize) {
+    if (bufsize < 9) {
+        snprintf(buf, bufsize, "%X", hex & 0xFFFFFFFF);
+    } else {
+        snprintf(buf, 9, "%08X", hex);
+    }
+    return buf;
+}

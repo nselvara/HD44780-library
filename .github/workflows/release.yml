@@ -25,7 +25,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/lcd_demo
+            build/lcd_demo_mock_effects
+            build/lcd_demo_mock_format
+            build/lcd_demo_xilinx
             build/lcd_test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -17,15 +17,27 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "lcd_gpio_hal.h"
+#include "lcd.h"
+#include "lcd_hal.h"
+#include "lcd_snapshot.h"
 #include <stdio.h>
 
-void lcd_gpio_write(uint8_t data, uint8_t rs, uint8_t rw, uint8_t en) {
-    // Placeholder: emulate on host
-    printf("[LCD GPIO] D=%02X RS=%u RW=%u EN=%u", data, rs, rw, en);
-}
+extern const lcd_hal_t LCD_HAL_MOCK;
 
-void lcd_delay_ms(uint32_t ms) {
-    // Placeholder: emulate delay
-    printf("[LCD Delay] %ums", ms);
+int main(void) {
+    lcd_hal_set_backend(&LCD_HAL_MOCK);  // Always set a backend!
+
+    lcd_init();
+    lcd_write_at("CPU Temp:", 1, 1);
+    lcd_set_cursor(2, 1);
+    lcd_print_custom("Temp: %d°C, ID: 0x%X", 25, 0xABCD);
+
+    lcd_set_cursor(3, 1);
+    lcd_print_std("Pi: %.2f", 3.14159);
+
+    lcd_set_cursor(4, 1);
+    lcd_write("Hello, World!");
+
+    lcd_snapshot();
+    return 0;
 }

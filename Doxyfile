@@ -1,7 +1,13 @@
+# Doxyfile for HD44780 LCD Library
+
 PROJECT_NAME           = "HD44780 LCD Library"
 OUTPUT_DIRECTORY       = docs
-RECURSIVE              = YES
 INPUT                  = include src
+RECURSIVE              = YES
 GENERATE_LATEX         = NO
-QUIET                  = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+GENERATE_TREEVIEW      = YES
 GENERATE_HTML          = YES
+QUIET                  = YES

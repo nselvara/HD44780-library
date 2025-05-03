@@ -17,14 +17,17 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "lcd.h"
+#ifndef LCD_SNAPSHOT_H_
+#define LCD_SNAPSHOT_H_
 
-int main(void) {
-    lcd_init();
-    lcd_write_at("'\n'CPU Temp:", 1, 1);
-    lcd_print_custom("'\n'Temp: %d°C, ID: 0x%X", 25, 0xABCD);
-    lcd_print_std("'\n'Pi: %.2f", 3.14159);
-    lcd_write_at("'\n'Hello, World!", 2, 1);
-    lcd_snapshot();  // Simulated output
-    return 0;
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void lcd_snapshot(void);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif

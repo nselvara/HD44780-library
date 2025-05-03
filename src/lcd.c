@@ -61,8 +61,8 @@ void lcd_set_function(bool data8bit, bool lines2, bool font5x10) {
 }
 
 void lcd_goto(uint8_t row, uint8_t col) {
-    static const uint8_t row_offsets[] = { 0x00, 0x40, 0x10, 0x50 };
-    lcd_hal_send_command(0x80 | (col + row_offsets[row % 4]));
+    static const uint8_t ROW_OFFSETS[] = { 0x00, 0x40, 0x10, 0x50 };
+    lcd_hal_send_command(0x80 | (col + ROW_OFFSETS[row % 4]));
 }
 
 void lcd_command(lcd_command_t cmd) {
@@ -96,8 +96,8 @@ void lcd_print_std(const char *format, ...) {
 }
 
 void lcd_set_cursor(int row, int col) {
-    static const uint8_t row_offsets[] = { 0x00, 0x40, 0x10, 0x50 };
-    lcd_command(LCD_CMD_SET_DDRAM_ADDR | (row_offsets[row - 1] + col - 1));
+    static const uint8_t ROW_OFFSETS[] = { 0x00, 0x40, 0x10, 0x50 };
+    lcd_command(LCD_CMD_SET_DDRAM_ADDR | (ROW_OFFSETS[row - 1] + col - 1));
 }
 
 char lcd_translate_special_char(char ch) {

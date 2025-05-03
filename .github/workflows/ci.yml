@@ -1,35 +1,48 @@
-name: CI
+name: Build and Test
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install build tools
-        run: sudo apt-get update && sudo apt-get install -y cmake build-essential
+      - name: Install tools
+        run: sudo apt update && sudo apt install -y cmake gcc make cppcheck clang-format
 
-      - name: Configure project
+      - name: Lint (cppcheck)
+        run: cppcheck --enable=all --inconclusive --quiet --error-exitcode=1 src include
+
+      - name: Lint (clang-format)
         run: |
-          mkdir build
-          cd build
-          cmake .. -DUSE_SIMULATION=ON
+          find src include -name '*.c' -o -name '*.h' | xargs clang-format -n --Werror
 
-      - name: Build project
+      - name: Configure
+        run: cmake -S . -B build -DENABLE_TESTING=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run demos
+        run: |
+          ./build/demo/lcd_demo_mock_effects
+          ./build/demo/lcd_demo_mock_format
+          ./build/demo/lcd_demo_xilinx
+
+      - name: Run tests
         run: |
           cd build
-          make
+          ctest --output-on-failure --verbose
+          ctest --output-junit test-results.xml
 
-      - name: List build contents
-        run: ls -l build/
-
-      - name: Run unit tests
-        run: ./build/lcd_test
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: build/test-results.xml
