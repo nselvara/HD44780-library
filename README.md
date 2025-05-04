@@ -2,34 +2,37 @@
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](#)
 
-# HD44780 LCD Library for MicroBlaze (and Beyond)
+# HD44780 LCD Library for Embedded Systems
 
-A modern, simulation-capable C library to control HD44780-compatible character LCDs (like 4x16) via an 8-bit parallel interface.
-
-Designed for Xilinx MicroBlaze but adaptable to any embedded platform. Includes full host-side simulation, unit tests, and printf-style rendering support.
+A modular, cross-platform, embedded C library for controlling HD44780-compatible character LCD displays.  
+Supports custom HAL backends, simulation, printf-style output, and flexible demos.
 
 ---
 
-## ✨ Features
+## Features
 
 - 8-bit GPIO interface using simple HAL
-- Custom `lcd_print_custom()` and standard `lcd_print_std()` versions
+- Lot of LCD features (cursor, clear, bar drawing, scrolling)
+  - Custom `lcd_print_custom()` and standard `lcd_print_std()` versions
 - 4x16 LCD simulation with terminal output
-- Testable on host system without hardware
 - Cursor control, special character translation
-- Unit-tested & CI-ready
+- Full unit test and demo integration
+  - Testable on host system without hardware
+- ANSI C (C99) and portable
+- HAL-based architecture (simulation, Xilinx GPIO, mock, custom)
+- CMake-based build system
 
 ---
 
-## 🛠 Build & Test Instructions
+## Build & Test Instructions
 
-### ✅ Prerequisites
+### Prerequisites
 
-- C compiler (e.g. GCC or Clang)
-- CMake ≥ 3.10
+- CMake >= 3.14
+- A C99-compatible compiler (GCC, Clang, etc.)
 - Git (for cloning)
 
-### 🔧 Building (with CMake)
+### Building (with CMake)
 
 ```bash
 git clone https://github.com/nselvara/HD44780-library.git
@@ -39,7 +42,11 @@ cmake .. -DUSE_SIMULATION=ON
 make
 ```
 
-### ▶️ Running the Demo
+### Demo Binaries
+
+- `lcd_demo` – basic hello world
+- `lcd_demo_format` – formatted output
+- `lcd_demo_xilinx` – target-specific
 
 ```bash
 ./lcd_demo
@@ -47,7 +54,7 @@ make
 
 You'll see simulated output like:
 
-```
+```terminal
 ----- LCD STATE -----
 CPU Temp: 37.80°C
 Hello, World!
@@ -55,17 +62,17 @@ Hello, World!
 ----------------------
 ```
 
-### ✅ Running Unit Tests
+### Run Unit Tests
 
 ```bash
-./lcd_test
+ctest
 ```
 
 All tests run with simulated LCD buffer and assert correctness.
 
 ---
 
-## 🔌 Platform Abstraction (HAL)
+## Platform Abstraction (HAL)
 
 To use on your own hardware:
 
@@ -80,18 +87,27 @@ For example, for Xilinx MicroBlaze you'd call `XGpio_DiscreteWrite()` and `uslee
 
 ---
 
-## 🧪 Two `lcd_print_xy()` Implementations
+## Two `lcd_print_xy()` Implementations
 
 ```c
 lcd_print_custom("Temp: %d°C", 27);  // My own implementation (it uses less resources)
 lcd_print_std("Temp: %.2f°C", 27.5); // Standard via vsnprintf
 ```
 
-Both are available and interchangeable.
 
 ---
 
-## 🧩 File Structure
+## 🔧 API Overview
+
+- `lcd_init_with_default_hal()` – Initializes the default HAL (selected by CMake)
+- `lcd_init_auto_or_manual()` – Only sets HAL if one hasn’t been set
+- `lcd_write`, `lcd_write_at`, `lcd_set_cursor`
+- `lcd_print_custom`, `lcd_print_std` (printf-style output)
+- `lcd_draw_bar`, `lcd_scroll_left/right`, etc.
+
+---
+
+## File Structure
 
 ```tree
 📁 include/          → Public headers (lcd.h, config, features)
@@ -104,16 +120,7 @@ Both are available and interchangeable.
 
 ---
 
-## 🧾 License
-
-This project is licensed under the **LGPL v3.0**.  
-You can use this library in both open and closed-source projects, as long as you publish modifications to the library itself.
-
-See [LICENSE](./LICENSE) for full terms.
-
----
-
-### 🧩 Using the Xilinx HAL
+### Using the Xilinx HAL
 
 To build using the Xilinx GPIO interface:
 
@@ -129,7 +136,9 @@ lcd_hal_set_backend(&LCD_HAL_XILINX_GPIO);
 lcd_init();
 ```
 
-## 📁 Project Structure
+Both are available and interchangeable.
+
+## Project Structure
 
 ```tree
 HD44780-library/
@@ -148,8 +157,7 @@ HD44780-library/
 └── README.md
 ```
 
-
-## 🎮 Xilinx MicroBlaze Example
+## Xilinx MicroBlaze Example
 
 To use this library in a Xilinx platform (e.g. with PLB GPIO):
 
@@ -169,3 +177,12 @@ In Vivado SDK / Vitis:
 
 - Link against compiled `.a` or include the source
 - Set `XPAR_LCD_GPIO_DEVICE_ID` via `xparameters.h`
+
+---
+
+## License
+
+This project is licensed under the **LGPL v3.0**.  
+You can use this library in both open and closed-source projects, as long as you publish modifications to the library itself.
+
+See [LICENSE](./LICENSE) for full terms.
