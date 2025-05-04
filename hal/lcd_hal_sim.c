@@ -17,18 +17,33 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "lcd_hal.h"
 #include <stdio.h>
-#include <stdint.h>
-#include "lcd.h"
 
-void lcd_hal_send_command(uint8_t value) {
-    printf("[CMD: 0x%02X] ", value);
+static void sim_init(void) {
+    printf("[HAL Sim] Initialized\n");
 }
 
-void lcd_hal_send_data(uint8_t value) {
-    printf("%c", value);
+static void sim_command(uint8_t val) {
+    printf("[HAL Sim] CMD: 0x%02X\n", val);
 }
 
-void lcd_hal_delay_ms(uint32_t ms) {
-    (void)ms; // No-op for host
+static void sim_data(uint8_t val) {
+    printf("[HAL Sim] DATA: %c\n", val);
 }
+
+static void sim_delay(uint32_t ms) {
+    printf("[HAL Sim] Delay %u ms\n", ms);
+}
+
+static void sim_deinit(void) {
+    printf("[HAL Sim] Deinitialized\n");
+}
+
+const lcd_hal_t lcd_hal_sim = {
+    .init = sim_init,
+    .send_command = sim_command,
+    .send_data = sim_data,
+    .delay_ms = sim_delay,
+    .deinit = sim_deinit,
+};

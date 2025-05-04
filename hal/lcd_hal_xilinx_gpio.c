@@ -17,27 +17,35 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "lcd.h"
 #include "lcd_hal.h"
-#include "lcd_snapshot.h"
-#include <stdio.h>
+#include "xgpio.h"
+#include "xparameters.h"
 
-extern const lcd_hal_t LCD_HAL_MOCK;
+#define LCD_CHANNEL 1
 
-int main(void) {
-    lcd_hal_set_backend(&LCD_HAL_MOCK);  // Always set a backend!
-
-    lcd_init();
-    lcd_write_at("CPU Temp:", 1, 1);
-    lcd_set_cursor(2, 1);
-    lcd_print_custom("Temp: %d°C, ID: 0x%X", 25, 0xABCD);
-
-    lcd_set_cursor(3, 1);
-    lcd_print_std("Pi: %.2f", 3.14159);
-
-    lcd_set_cursor(4, 1);
-    lcd_write("Hello, World!");
-
-    lcd_snapshot();
-    return 0;
+static void xilinx_init(void) {
+    // Example: initialize GPIO (mocked)
+    // Normally you'd call XGpio_Initialize and set direction
 }
+
+static void xilinx_send_command(uint8_t val) {
+    XGpio_DiscreteWrite(&GPIO_LCD, LCD_CHANNEL, val); // Replace with actual control signals
+}
+
+static void xilinx_send_data(uint8_t val) {
+    XGpio_DiscreteWrite(&GPIO_LCD, LCD_CHANNEL, val); // Replace with actual control signals + RS=1
+}
+
+static void xilinx_delay(uint32_t ms) {
+    usleep(ms * 1000);
+}
+
+static void xilinx_deinit(void) {}
+
+const lcd_hal_t lcd_hal_xilinx = {
+    .init = xilinx_init,
+    .send_command = xilinx_send_command,
+    .send_data = xilinx_send_data,
+    .delay_ms = xilinx_delay,
+    .deinit = xilinx_deinit,
+};

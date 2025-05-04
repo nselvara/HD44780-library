@@ -18,13 +18,25 @@
  */
 
 #include "lcd_hal.h"
+#include <stddef.h>
 
-static const lcd_hal_t *lcd_hal = 0;
+static const lcd_hal_t *active_hal = NULL;
 
 void lcd_hal_set_backend(const lcd_hal_t *backend) {
-    lcd_hal = backend;
+    if (backend && backend->init) {
+        backend->init();
+    }
+    active_hal = backend;
 }
 
-void lcd_hal_send_command(uint8_t value) { lcd_hal->send_command(value); }
-void lcd_hal_send_data(uint8_t value)    { lcd_hal->send_data(value); }
-void lcd_hal_delay_ms(uint32_t ms)       { lcd_hal->delay_ms(ms); }
+const lcd_hal_t *lcd_hal_get_active(void) {
+    return active_hal;
+}
+
+// Only initializes if not already set manually
+void lcd_init_auto_or_manual(void) {
+    if (lcd_hal_get_active() == NULL) {
+        lcd_init_with_default_hal();
+    }
+    // assumes lcd_init() is safe to call regardless of backend
+}

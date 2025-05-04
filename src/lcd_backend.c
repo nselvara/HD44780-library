@@ -17,28 +17,20 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef LCD_HAL_H_
-#define LCD_HAL_H_
+#include "lcd_hal.h"
 
-#include <stdint.h>
-
-#ifdef __cplusplus
-extern "C" {
+#if defined(USE_HAL_XILINX)
+extern const lcd_hal_t lcd_hal_xilinx;
+#define DEFAULT_HAL &lcd_hal_xilinx
+#elif defined(USE_HAL_SIM)
+extern const lcd_hal_t lcd_hal_sim;
+#define DEFAULT_HAL &lcd_hal_sim
+#else
+extern const lcd_hal_t lcd_hal_mock;
+#define DEFAULT_HAL &lcd_hal_mock
 #endif
 
-typedef struct {
-    void (*init)(void);
-    void (*send_command)(uint8_t value);
-    void (*send_data)(uint8_t value);
-    void (*delay_ms)(uint32_t ms);
-    void (*deinit)(void);
-} lcd_hal_t;
-
-void lcd_hal_set_backend(const lcd_hal_t *backend);
-const lcd_hal_t *lcd_hal_get_active(void);
-
-#ifdef __cplusplus
+void lcd_init_with_default_hal(void) {
+    lcd_hal_set_backend(DEFAULT_HAL);
+    // user must call lcd_init() afterwards if needed
 }
-#endif
-
-#endif // LCD_HAL_H_

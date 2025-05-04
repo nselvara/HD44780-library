@@ -31,23 +31,51 @@
   #include <unistd.h>
 #endif
 
-extern const lcd_hal_t LCD_HAL_MOCK;
+extern const lcd_hal_t lcd_hal_mock;
 
 int main(void) {
-    lcd_hal_set_backend(&LCD_HAL_MOCK);
+    // Set the backend to the mock HAL for simulation/printing
+    lcd_hal_set_backend(&lcd_hal_mock);
+
+    // Initialize the LCD
     lcd_init();
 
-    lcd_write("Welcome!");
+    // --- BASIC USAGE ---
+    lcd_write_at("Welcome to", 1, 1);
+    lcd_write_at("HD44780 Demo", 2, 1);
+
+    // Pause and snapshot the current state
+    lcd_snapshot();
+    sleep(1);
+
+    // --- FORMATTED OUTPUT ---
+    lcd_clear();
+    lcd_write_at("Temp: ", 1, 1);
+    lcd_print_custom("%d C", 27);
+
     lcd_set_cursor(2, 1);
-    lcd_print_custom("Temp: %dC", 25);
+    lcd_print_std("Voltage: %.2fV", 3.30);
+
     lcd_set_cursor(3, 1);
-    lcd_draw_bar(3, 8, 16);
+    lcd_print_custom("ID: 0x%X", 0xDEAD);
 
     lcd_snapshot();
+    sleep(1);
 
-    sleep(2);
-    lcd_scroll_left();
+    // --- GRAPHIC/ANIMATION ---
+    lcd_set_cursor(4, 1);
+    lcd_write("Loading:");
+
+    for (int i = 1; i <= 16; ++i) {
+        lcd_set_cursor(4, i);
+        lcd_write_char('|');
+        lcd_snapshot();
+        usleep(100000); // 100ms delay for animation
+    }
+
+    lcd_set_cursor(4, 10);
+    lcd_write(" Done!");
+
     lcd_snapshot();
-
     return 0;
 }
