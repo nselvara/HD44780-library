@@ -1,0 +1,11 @@
+if(HD44780_USE_HAL_MOCK)
+  add_executable(lcd_test lcd_test.c)
+  target_link_libraries(lcd_test hd44780_lcd unity)
+  add_test(NAME LCD_Test COMMAND lcd_test)
+endif()
+
+if(HD44780_USE_HAL_SIM)
+  add_executable(lcd_sim_test lcd_sim_test.c)
+  target_link_libraries(lcd_sim_test hd44780_lcd unity)
+  add_test(NAME LCD_SimTest COMMAND lcd_sim_test)
+endif()

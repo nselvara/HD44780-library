@@ -18,24 +18,20 @@
  */
 
 #include "lcd_hal.h"
+#include <stdint.h>
 
-#if defined(LCD_HAL_SIM)
-    extern const lcd_hal_t lcd_hal_sim;
-    #define LCD_HAL_DEFAULT (&lcd_hal_sim)
-#elif defined(LCD_HAL_XILINX)
-    extern const lcd_hal_t lcd_hal_xilinx;
-    #define LCD_HAL_DEFAULT (&lcd_hal_xilinx)
-#elif defined(LCD_HAL_MOCK)
-    extern const lcd_hal_t lcd_hal_mock;
-    #define LCD_HAL_DEFAULT (&lcd_hal_mock)
-#elif defined(LCD_HAL_STUB)
-    extern const lcd_hal_t lcd_hal_stub;
-    #define LCD_HAL_DEFAULT (&lcd_hal_stub)
-#else
-    #error "No HAL defined!"
-#endif
+// Stub functions: do nothing
+static void stub_init(void) {}
+static void stub_send_command(uint8_t value) {}
+static void stub_send_data(uint8_t value) {}
+static void stub_delay_ms(uint32_t ms) { (void)ms; }
+static void stub_deinit(void) {}
 
-void lcd_init_with_default_hal(void) {
-    lcd_hal_set_backend(LCD_HAL_DEFAULT);
-    // user must call lcd_init() afterwards if needed
-}
+// Expose stub HAL
+const lcd_hal_t lcd_hal_stub = {
+    .init = stub_init,
+    .send_command = stub_send_command,
+    .send_data = stub_send_data,
+    .delay_ms = stub_delay_ms,
+    .deinit = stub_deinit
+};

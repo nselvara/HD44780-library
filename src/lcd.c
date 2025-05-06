@@ -20,6 +20,7 @@
 #include "lcd.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>  // for abs()
 
 void lcd_init(void) {
     lcd_command(LCD_CMD_FUNCTION_SET | LCD_8BIT_MODE | LCD_2LINE_MODE);

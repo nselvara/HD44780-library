@@ -18,7 +18,8 @@
  */
 
 #include "lcd.h"
-#include "lcd_gpio_hal.h"
+#include "lcd_hal.h"
+#include "lcd_snapshot.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -62,4 +63,3 @@ void lcd_reset_simulation(void) {
     cursor_row = 0;
     cursor_col = 0;
 }
-

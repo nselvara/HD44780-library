@@ -17,8 +17,8 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef LCD_HAL_XILINX_GPIO_H_
-#define LCD_HAL_XILINX_GPIO_H_
+#ifndef lcd_hal_xilinx_gpio_H_
+#define lcd_hal_xilinx_gpio_H_
 
 #include "lcd_hal.h"
 
@@ -26,10 +26,10 @@
 extern "C" {
 #endif
 
-extern const lcd_hal_t LCD_HAL_XILINX_GPIO;
+extern const lcd_hal_t lcd_hal_xilinx_gpio;
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // LCD_HAL_XILINX_GPIO_H_
+#endif // lcd_hal_xilinx_gpio_H_

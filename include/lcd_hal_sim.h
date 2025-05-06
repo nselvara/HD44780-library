@@ -17,25 +17,15 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#ifndef LCD_HAL_SIM_H_
+#define LCD_HAL_SIM_H_
+
 #include "lcd_hal.h"
 
-#if defined(LCD_HAL_SIM)
-    extern const lcd_hal_t lcd_hal_sim;
-    #define LCD_HAL_DEFAULT (&lcd_hal_sim)
-#elif defined(LCD_HAL_XILINX)
-    extern const lcd_hal_t lcd_hal_xilinx;
-    #define LCD_HAL_DEFAULT (&lcd_hal_xilinx)
-#elif defined(LCD_HAL_MOCK)
-    extern const lcd_hal_t lcd_hal_mock;
-    #define LCD_HAL_DEFAULT (&lcd_hal_mock)
-#elif defined(LCD_HAL_STUB)
-    extern const lcd_hal_t lcd_hal_stub;
-    #define LCD_HAL_DEFAULT (&lcd_hal_stub)
-#else
-    #error "No HAL defined!"
-#endif
+extern const lcd_hal_t lcd_hal_sim;
 
-void lcd_init_with_default_hal(void) {
-    lcd_hal_set_backend(LCD_HAL_DEFAULT);
-    // user must call lcd_init() afterwards if needed
-}
+void lcd_snapshot(void);
+void lcd_draw_bar(uint8_t row, uint8_t filled_cols, uint8_t total_cols);
+void lcd_scroll_left(void);
+
+#endif // LCD_HAL_SIM_H_
