@@ -59,7 +59,18 @@ void lcd_snapshot(void) {
 
 void lcd_reset_simulation(void) {
     memset(lcd_buffer, ' ', sizeof(lcd_buffer));
-    for (int i = 0; i < LCD_ROWS; i++) lcd_buffer[i][LCD_COLS] = '\0';
+    for (int i = 0; i < LCD_ROWS; ++i) {
+        for (int j = 0; j < LCD_COLS; ++j)
+            lcd_buffer[i][j] = ' ';
+        lcd_buffer[i][LCD_COLS] = '\0'; // null-terminate the row
+    }
     cursor_row = 0;
     cursor_col = 0;
 }
+
+const char *lcd_get_line(int row) {
+    if (row >= 0 && row < LCD_ROWS)
+        return lcd_buffer[row];
+    return "";
+}
+

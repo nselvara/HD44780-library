@@ -105,15 +105,16 @@ Both are available and interchangeable.
 
 ### Run Unit Tests
 
-```bash
-cd build
-ctest
-```
-
 Tests use the simulation or stub HAL and verify LCD state with assertions.
 
 ```bash
 python build_and_deploy.py mock --test
+```
+
+or
+
+```bash
+python build_and_deploy.py sim --test
 ```
 
 All tests run with simulated LCD buffer and assert correctness.

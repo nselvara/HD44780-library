@@ -46,3 +46,9 @@ jobs:
         with:
           name: test-results
           path: build/test-results.xml
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: lcd-executables
+          path: build/demo/Debug/*.exe
