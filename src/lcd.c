@@ -20,73 +20,95 @@
 #include "lcd.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h> // for abs()
 
-void lcd_init(void) {
+void lcd_init(void)
+{
     lcd_command(LCD_CMD_FUNCTION_SET | LCD_8BIT_MODE | LCD_2LINE_MODE);
     lcd_command(LCD_CMD_DISPLAY_CONTROL | LCD_DISPLAY_ON);
     lcd_command(LCD_CMD_CLEAR_DISPLAY);
     lcd_command(LCD_CMD_ENTRY_MODE_SET | LCD_ENTRY_INCREMENT);
 }
 
-void lcd_clear(void) {
+void lcd_clear(void)
+{
     lcd_command(LCD_CMD_CLEAR_DISPLAY);
     lcd_hal_delay_ms(2);
 }
 
-void lcd_home(void) {
+void lcd_home(void)
+{
     lcd_command(LCD_CMD_RETURN_HOME);
     lcd_hal_delay_ms(2);
 }
 
-void lcd_set_display(bool display_on, bool cursor_on, bool blink_on) {
+void lcd_set_display(bool display_on, bool cursor_on, bool blink_on)
+{
     uint8_t cmd = LCD_CMD_DISPLAY_CONTROL;
-    if (display_on) cmd |= LCD_DISPLAY_ON;
-    if (cursor_on)  cmd |= LCD_CURSOR_ON;
-    if (blink_on)   cmd |= LCD_BLINK_ON;
+    if (display_on)
+        cmd |= LCD_DISPLAY_ON;
+    if (cursor_on)
+        cmd |= LCD_CURSOR_ON;
+    if (blink_on)
+        cmd |= LCD_BLINK_ON;
+    lcd_hal_send_command(cmd);
 }
 
-void lcd_set_entry_mode(bool increment, bool shift) {
+void lcd_set_entry_mode(bool increment, bool shift)
+{
     uint8_t cmd = LCD_CMD_ENTRY_MODE_SET;
-    if (increment) cmd |= LCD_ENTRY_INCREMENT;
-    if (shift)     cmd |= LCD_ENTRY_SHIFT;
+    if (increment)
+        cmd |= LCD_ENTRY_INCREMENT;
+    if (shift)
+        cmd |= LCD_ENTRY_SHIFT;
     lcd_hal_send_command(cmd);
 }
 
-void lcd_set_function(bool data8bit, bool lines2, bool font5x10) {
+void lcd_set_function(bool data8bit, bool lines2, bool font5x10)
+{
     uint8_t cmd = LCD_CMD_FUNCTION_SET;
-    if (data8bit)  cmd |= LCD_8BIT_MODE;
-    if (lines2)    cmd |= LCD_2LINE_MODE;
-    if (font5x10)  cmd |= LCD_FONT_5x10;
+    if (data8bit)
+        cmd |= LCD_8BIT_MODE;
+    if (lines2)
+        cmd |= LCD_2LINE_MODE;
+    if (font5x10)
+        cmd |= LCD_FONT_5x10;
     lcd_hal_send_command(cmd);
 }
 
-void lcd_goto(uint8_t row, uint8_t col) {
-    static const uint8_t ROW_OFFSETS[] = { 0x00, 0x40, 0x10, 0x50 };
+void lcd_goto(uint8_t row, uint8_t col)
+{
+    static const uint8_t ROW_OFFSETS[] = {0x00, 0x40, 0x10, 0x50};
     lcd_hal_send_command(0x80 | (col + ROW_OFFSETS[row % 4]));
 }
 
-void lcd_command(lcd_command_t cmd) {
-    lcd_hal_send_command((uint8_t)cmd);
+void lcd_command(lcd_command_t command)
+{
+    lcd_hal_send_command((uint8_t)command);
     lcd_hal_delay_ms(2);
 }
 
-void lcd_write(const char *str) {
+void lcd_write(const char *str)
+{
     while (*str) {
         lcd_write_char(*str++);
     }
 }
 
-void lcd_write_at(const char *str, int row, int col) {
+void lcd_write_at(const char *str, int row, int col)
+{
     lcd_set_cursor(row, col);
     lcd_write(str);
 }
 
-void lcd_write_char(char ch) {
+void lcd_write_char(char ch)
+{
     lcd_hal_send_data((uint8_t)lcd_translate_special_char(ch));
     lcd_hal_delay_ms(1);
 }
 
-void lcd_print_std(const char *format, ...) {
+void lcd_print_std(const char *format, ...)
+{
     char buffer[128];
     va_list args;
     va_start(args, format);
@@ -95,22 +117,30 @@ void lcd_print_std(const char *format, ...) {
     lcd_write(buffer);
 }
 
-void lcd_set_cursor(int row, int col) {
-    static const uint8_t ROW_OFFSETS[] = { 0x00, 0x40, 0x10, 0x50 };
+void lcd_set_cursor(int row, int col)
+{
+    static const uint8_t ROW_OFFSETS[] = {0x00, 0x40, 0x10, 0x50};
     lcd_command(LCD_CMD_SET_DDRAM_ADDR | (ROW_OFFSETS[row - 1] + col - 1));
 }
 
-char lcd_translate_special_char(char ch) {
+char lcd_translate_special_char(char ch)
+{
     switch (ch) {
-        case 'ä': return 0x84;
-        case 'ö': return 0x94;
-        case 'ü': return 0x9A;
-        case '°': return 0xDF;
-        default: return ch;
+    case 'ä':
+        return 0x84;
+    case 'ö':
+        return 0x94;
+    case 'ü':
+        return 0x9A;
+    case '°':
+        return 0xDF;
+    default:
+        return ch;
     }
 }
 
-void lcd_reverse_string(char *str) {
+void lcd_reverse_string(char *str)
+{
     size_t len = strlen(str);
     for (size_t i = 0; i < len / 2; i++) {
         char tmp = str[i];
@@ -119,16 +149,21 @@ void lcd_reverse_string(char *str) {
     }
 }
 
-void lcd_itoa(int num, char *buffer, size_t buffersize) {
-    snprintf(buffer, buffersize, "%d", num);
+void lcd_itoa(int num, char *buf, size_t bufsize)
+{
+    if (bufsize == 0)
+        return;
+    snprintf(buf, bufsize, "%d", num);
 }
 
-const char* lcd_hex_to_ascii(uint32_t hex, char *buffer, size_t buffersize) {
-    snprintf(buffer, buffersize, "%08X", hex);
-    return buffer;
+const char *lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize)
+{ // Changed 'buffer'/'buffersize' to 'buf'/'bufsize'
+    snprintf(buf, bufsize, "%08X", hex);
+    return buf;
 }
 
-void lcd_print_custom(const char *format, ...) {
+void lcd_print_custom(const char *format, ...)
+{
     va_list args;
     va_start(args, format);
 
@@ -136,57 +171,57 @@ void lcd_print_custom(const char *format, ...) {
         if (*format == '%') {
             format++;
             switch (*format) {
-                case '%':
-                    lcd_write_char('%');
-                    break;
-                case 'd':
-                case 'i': {
-                    int val = va_arg(args, int);
-                    char buf[12];
-                    lcd_itoa(val, buf, sizeof(buf));
-                    lcd_write(buf);
-                    break;
-                }
-                case 'u': {
-                    unsigned int val = va_arg(args, unsigned int);
-                    char buf[12];
-                    lcd_itoa(val, buf, sizeof(buf));
-                    lcd_write(buf);
-                    break;
-                }
-                case 'x':
-                case 'X': {
-                    unsigned int val = va_arg(args, unsigned int);
-                    char buf[9];
-                    lcd_hex_to_ascii(val, buf, sizeof(buf));
-                    lcd_write(buf);
-                    break;
-                }
-                case 'c': {
-                    char c = (char)va_arg(args, int);
-                    lcd_write_char(c);
-                    break;
-                }
-                case 's': {
-                    const char *str = va_arg(args, const char *);
-                    lcd_write(str);
-                    break;
-                }
-                case 'f': {
-                    double val = va_arg(args, double);
-                    int whole = (int)val;
-                    int frac = abs((int)((val - whole) * 1000));
-                    char buf[12];
-                    lcd_itoa(whole, buf, sizeof(buf));
-                    lcd_write(buf);
-                    lcd_write_char('.');
-                    lcd_itoa(frac, buf, sizeof(buf));
-                    lcd_write(buf);
-                    break;
-                }
-                default:
-                    // unsupported format specifier, skip
-                    break;
+            case '%':
+                lcd_write_char('%');
+                break;
+            case 'd':
+            case 'i': {
+                int val = va_arg(args, int);
+                char buf[12];
+                lcd_itoa(val, buf, sizeof(buf));
+                lcd_write(buf);
+                break;
+            }
+            case 'u': {
+                unsigned int val = va_arg(args, unsigned int);
+                char buf[12];
+                lcd_itoa(val, buf, sizeof(buf));
+                lcd_write(buf);
+                break;
+            }
+            case 'x':
+            case 'X': {
+                unsigned int val = va_arg(args, unsigned int);
+                char buf[9];
+                lcd_hex_to_ascii(val, buf, sizeof(buf));
+                lcd_write(buf);
+                break;
+            }
+            case 'c': {
+                char c = (char)va_arg(args, int);
+                lcd_write_char(c);
+                break;
+            }
+            case 's': {
+                const char *str = va_arg(args, const char *);
+                lcd_write(str);
+                break;
+            }
+            case 'f': {
+                double val = va_arg(args, double);
+                int whole = (int)val;
+                int frac = abs((int)((val - whole) * 1000));
+                char buf[12];
+                lcd_itoa(whole, buf, sizeof(buf));
+                lcd_write(buf);
+                lcd_write_char('.');
+                lcd_itoa(frac, buf, sizeof(buf));
+                lcd_write(buf);
+                break;
+            }
+            default:
+                // unsupported format specifier, skip
+                break;
             }
         } else {
             lcd_write_char(*format);

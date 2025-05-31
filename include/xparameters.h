@@ -17,28 +17,10 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "lcd.h"
+/* Mock Xilinx parameters header for Windows development */
+#ifndef XPARAMETERS_H
+#define XPARAMETERS_H
 
-void lcd_define_char(uint8_t location, const uint8_t bitmap[8])
-{
-    location &= 0x07; // Only 8 locations (0-7)
-    lcd_command(LCD_CMD_SET_CGRAM_ADDR | (location << 3));
-    for (int i = 0; i < 8; i++) {
-        lcd_hal_send_data(bitmap[i]);
-    }
-    lcd_command(LCD_CMD_SET_DDRAM_ADDR); // Return to DDRAM
-}
+#define XPAR_GPIO_0_DEVICE_ID 0
 
-void lcd_scroll_left(void) { lcd_command(LCD_CMD_CURSOR_SHIFT | 0x08); }
-
-void lcd_scroll_right(void) { lcd_command(LCD_CMD_CURSOR_SHIFT | 0x0C); }
-
-void lcd_draw_bar(uint8_t row, uint8_t val, uint8_t max)
-{
-    const uint8_t WIDTH = 16;
-    uint8_t blocks = (val * WIDTH) / max;
-    lcd_set_cursor(row, 1);
-    for (uint8_t i = 0; i < WIDTH; i++) {
-        lcd_write_char(i < blocks ? 0xFF : ' ');
-    }
-}
+#endif /* XPARAMETERS_H */

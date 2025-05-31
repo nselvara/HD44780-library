@@ -40,28 +40,28 @@ extern "C" {
 // LCD Commands
 typedef enum {
     // Core command instructions
-    LCD_CMD_CLEAR_DISPLAY     = 0x01,
-    LCD_CMD_RETURN_HOME       = 0x02,
-    LCD_CMD_ENTRY_MODE_SET    = 0x04,
-    LCD_CMD_DISPLAY_CONTROL   = 0x08,
-    LCD_CMD_CURSOR_SHIFT      = 0x10,
-    LCD_CMD_FUNCTION_SET      = 0x20,
-    LCD_CMD_SET_CGRAM_ADDR    = 0x40,
-    LCD_CMD_SET_DDRAM_ADDR    = 0x80,
+    LCD_CMD_CLEAR_DISPLAY = 0x01,
+    LCD_CMD_RETURN_HOME = 0x02,
+    LCD_CMD_ENTRY_MODE_SET = 0x04,
+    LCD_CMD_DISPLAY_CONTROL = 0x08,
+    LCD_CMD_CURSOR_SHIFT = 0x10,
+    LCD_CMD_FUNCTION_SET = 0x20,
+    LCD_CMD_SET_CGRAM_ADDR = 0x40,
+    LCD_CMD_SET_DDRAM_ADDR = 0x80,
 
     // Entry mode flags
-    LCD_ENTRY_INCREMENT       = 0x02,
-    LCD_ENTRY_SHIFT           = 0x01,
+    LCD_ENTRY_INCREMENT = 0x02,
+    LCD_ENTRY_SHIFT = 0x01,
 
     // Display control flags
-    LCD_DISPLAY_ON            = 0x04,
-    LCD_CURSOR_ON             = 0x02,
-    LCD_BLINK_ON              = 0x01,
+    LCD_DISPLAY_ON = 0x04,
+    LCD_CURSOR_ON = 0x02,
+    LCD_BLINK_ON = 0x01,
 
     // Function set flags
-    LCD_8BIT_MODE             = 0x10,
-    LCD_2LINE_MODE            = 0x08,
-    LCD_FONT_5x10             = 0x04
+    LCD_8BIT_MODE = 0x10,
+    LCD_2LINE_MODE = 0x08,
+    LCD_FONT_5x10 = 0x04
 } lcd_command_t;
 
 // Public API
@@ -87,7 +87,7 @@ void lcd_print_std(const char *format, ...);
 char lcd_translate_special_char(char ch);
 void lcd_reverse_string(char *str);
 void lcd_itoa(int num, char *buf, size_t bufsize);
-const char* lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize);
+const char *lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize);
 
 // HAL hooks (must be implemented externally)
 void lcd_hal_send_command(uint8_t value);

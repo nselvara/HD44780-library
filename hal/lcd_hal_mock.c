@@ -24,6 +24,30 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef _WIN32
+    #include <windows.h>
+    #define lcd_delay(ms) Sleep(ms)
+    #define usleep(x) Sleep((x) / 1000)
+#else
+    #include <unistd.h>
+    #define lcd_delay(ms) sleep((ms) * 1000)
+    #define usleep(x) usleep((x) / 1000)
+#endif
+
+static void mock_init(void)         { printf("[Mock HAL] Init\n"); }
+static void mock_cmd(uint8_t val)   { printf("[Mock HAL] CMD 0x%02X\n", val); }
+static void mock_data(uint8_t val)  { printf("[Mock HAL] DATA '%c' (0x%02X)\n", val, val); }
+static void mock_delay(uint32_t ms) { printf("[Mock HAL] Delay %u ms\n", ms); }
+static void mock_deinit(void)       { printf("[Mock HAL] Deinit\n"); }
+
+const lcd_hal_t lcd_hal_mock = {
+    .init = mock_init,
+    .send_command = mock_cmd,
+    .send_data = mock_data,
+    .delay_ms = mock_delay,
+    .deinit = mock_deinit
+};
+
 #define LCD_ROWS 4
 #define LCD_COLS 16
 
@@ -69,17 +93,12 @@ static void mock_delay_ms(uint32_t ms) {
     (void)ms; // No-op for simulation
 }
 
-const lcd_hal_t LCD_HAL_MOCK = {
-    .send_command = mock_send_command,
-    .send_data = mock_send_data,
-    .delay_ms = mock_delay_ms
-};
-
 // Additional demo utilities
 void lcd_snapshot(void) {
     printf("\n=== LCD SNAPSHOT ===\n");
-    for (int i = 0; i < LCD_ROWS; ++i)
+    for (int i = 0; i < LCD_ROWS; ++i) {
         printf("%.*s\n", LCD_COLS, lcd_buffer[i]);
+    }
     printf("====================\n\n");
 }
 

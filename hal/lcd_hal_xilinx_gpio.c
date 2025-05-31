@@ -17,6 +17,13 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
+// Add at the top of the file
+#ifdef _WIN32
+#include <windows.h> // For Sleep()
+#else
+#include <unistd.h> // For usleep()
+#endif
+
 #include "lcd_hal.h"
 #include "xgpio.h"
 #include "xparameters.h"
@@ -24,8 +31,7 @@
 #define LCD_CHANNEL 1
 
 static void xilinx_init(void) {
-    // Example: initialize GPIO (mocked)
-    // Normally you'd call XGpio_Initialize and set direction
+    XGpio_Initialize(&GPIO_LCD, XPAR_GPIO_0_DEVICE_ID);
 }
 
 static void xilinx_send_command(uint8_t val) {
@@ -37,7 +43,13 @@ static void xilinx_send_data(uint8_t val) {
 }
 
 static void xilinx_delay(uint32_t ms) {
-    usleep(ms * 1000);
+#ifdef _WIN32
+    // Windows implementation
+    Sleep(ms); // Windows uses milliseconds
+#else
+    // UNIX/Linux implementation
+    usleep(ms * 1000); // usleep uses microseconds
+#endif
 }
 
 static void xilinx_deinit(void) {}

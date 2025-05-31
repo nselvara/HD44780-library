@@ -20,23 +20,49 @@
 #include "lcd_hal.h"
 #include <stddef.h>
 
-static const lcd_hal_t *active_hal = NULL;
+static const lcd_hal_t *active_backend = NULL;
 
-void lcd_hal_set_backend(const lcd_hal_t *backend) {
+const lcd_hal_t *lcd_hal_get_active(void) { return active_backend; }
+
+void lcd_init_auto_or_manual(void)
+{
+    if (lcd_hal_get_active() == NULL) {
+        lcd_init_with_default_hal(); // user-defined fallback
+    }
+}
+
+void lcd_hal_set_backend(const lcd_hal_t *backend)
+{
+    active_backend = backend;
     if (backend && backend->init) {
         backend->init();
     }
-    active_hal = backend;
 }
 
-const lcd_hal_t *lcd_hal_get_active(void) {
-    return active_hal;
-}
-
-// Only initializes if not already set manually
-void lcd_init_auto_or_manual(void) {
-    if (lcd_hal_get_active() == NULL) {
-        lcd_init_with_default_hal();
+void lcd_hal_send_command(uint8_t value)
+{
+    if (active_backend && active_backend->send_command) {
+        active_backend->send_command(value);
     }
-    // assumes lcd_init() is safe to call regardless of backend
+}
+
+void lcd_hal_send_data(uint8_t value)
+{
+    if (active_backend && active_backend->send_data) {
+        active_backend->send_data(value);
+    }
+}
+
+void lcd_hal_delay_ms(uint32_t ms)
+{
+    if (active_backend && active_backend->delay_ms) {
+        active_backend->delay_ms(ms);
+    }
+}
+
+void lcd_hal_deinit(void)
+{
+    if (active_backend && active_backend->deinit) {
+        active_backend->deinit();
+    }
 }

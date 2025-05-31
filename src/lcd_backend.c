@@ -19,18 +19,24 @@
 
 #include "lcd_hal.h"
 
-#if defined(USE_HAL_XILINX)
-extern const lcd_hal_t lcd_hal_xilinx;
-#define DEFAULT_HAL &lcd_hal_xilinx
-#elif defined(USE_HAL_SIM)
+#if defined(LCD_HAL_SIM)
 extern const lcd_hal_t lcd_hal_sim;
-#define DEFAULT_HAL &lcd_hal_sim
-#else
+#define LCD_HAL_DEFAULT (&lcd_hal_sim)
+#elif defined(LCD_HAL_XILINX)
+extern const lcd_hal_t lcd_hal_xilinx;
+#define LCD_HAL_DEFAULT (&lcd_hal_xilinx)
+#elif defined(LCD_HAL_MOCK)
 extern const lcd_hal_t lcd_hal_mock;
-#define DEFAULT_HAL &lcd_hal_mock
+#define LCD_HAL_DEFAULT (&lcd_hal_mock)
+#elif defined(LCD_HAL_STUB)
+extern const lcd_hal_t lcd_hal_stub;
+#define LCD_HAL_DEFAULT (&lcd_hal_stub)
+#else
+#error "No HAL defined!"
 #endif
 
-void lcd_init_with_default_hal(void) {
-    lcd_hal_set_backend(DEFAULT_HAL);
+void lcd_init_with_default_hal(void)
+{
+    lcd_hal_set_backend(LCD_HAL_DEFAULT);
     // user must call lcd_init() afterwards if needed
 }

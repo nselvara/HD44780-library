@@ -17,19 +17,21 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef lcd_hal_xilinx_gpio_H_
-#define lcd_hal_xilinx_gpio_H_
-
 #include "lcd_hal.h"
+#include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// Stub functions: do nothing
+static void stub_init(void) {}
+static void stub_send_command(uint8_t value) {}
+static void stub_send_data(uint8_t value) {}
+static void stub_delay_ms(uint32_t ms) { (void)ms; }
+static void stub_deinit(void) {}
 
-extern const lcd_hal_t lcd_hal_xilinx_gpio;
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif // lcd_hal_xilinx_gpio_H_
+// Expose stub HAL
+const lcd_hal_t lcd_hal_stub = {
+    .init = stub_init,
+    .send_command = stub_send_command,
+    .send_data = stub_send_data,
+    .delay_ms = stub_delay_ms,
+    .deinit = stub_deinit
+};

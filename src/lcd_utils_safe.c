@@ -19,14 +19,17 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#include <stddef.h> 
+#include <stddef.h>
 
-void lcd_itoa(int num, char *buf, size_t bufsize) {
-    if (bufsize == 0) return;
+void lcd_itoa(int num, char *buf, size_t bufsize)
+{
+    if (bufsize == 0)
+        return;
     snprintf(buf, bufsize, "%d", num);
 }
 
-const char* lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize) {
+const char *lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize)
+{
     if (bufsize < 9) {
         snprintf(buf, bufsize, "%X", hex & 0xFFFFFFFF);
     } else {

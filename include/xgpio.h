@@ -17,28 +17,29 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "lcd.h"
+/* Mock Xilinx GPIO header for Windows development */
+#ifndef XGPIO_H
+#define XGPIO_H
 
-void lcd_define_char(uint8_t location, const uint8_t bitmap[8])
-{
-    location &= 0x07; // Only 8 locations (0-7)
-    lcd_command(LCD_CMD_SET_CGRAM_ADDR | (location << 3));
-    for (int i = 0; i < 8; i++) {
-        lcd_hal_send_data(bitmap[i]);
-    }
-    lcd_command(LCD_CMD_SET_DDRAM_ADDR); // Return to DDRAM
-}
+typedef unsigned int u32;
+typedef unsigned short u16;
+typedef unsigned long UINTPTR;
 
-void lcd_scroll_left(void) { lcd_command(LCD_CMD_CURSOR_SHIFT | 0x08); }
+typedef struct {
+    u32 BaseAddress;
+    int IsReady;
+} XGpio;
 
-void lcd_scroll_right(void) { lcd_command(LCD_CMD_CURSOR_SHIFT | 0x0C); }
+typedef struct {
+    u16 DeviceId;
+    UINTPTR BaseAddress;
+} XGpio_Config;
 
-void lcd_draw_bar(uint8_t row, uint8_t val, uint8_t max)
-{
-    const uint8_t WIDTH = 16;
-    uint8_t blocks = (val * WIDTH) / max;
-    lcd_set_cursor(row, 1);
-    for (uint8_t i = 0; i < WIDTH; i++) {
-        lcd_write_char(i < blocks ? 0xFF : ' ');
-    }
-}
+/* Mock function declarations */
+#define XGpio_Initialize(InstancePtr, DeviceId) (0)
+#define XGpio_DiscreteWrite(InstancePtr, Channel, Data) ((void)0)
+#define XGpio_SetDataDirection(InstancePtr, Channel, DirectionMask) ((void)0)
+
+#define XPAR_GPIO_0_DEVICE_ID 0
+
+#endif /* XGPIO_H */

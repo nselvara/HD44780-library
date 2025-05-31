@@ -24,12 +24,13 @@
 extern "C" {
 #endif
 
-#include "lcd_config.h"  // for LCD_ROWS, LCD_COLS
+#include "lcd_config.h" // for LCD_ROWS, LCD_COLS
 extern char lcd_buffer[LCD_ROWS][LCD_COLS + 1];
 
 void lcd_reset_simulation(void);
 void lcd_snapshot(void);
 void lcd_set_cursor(int row, int col);
+const char *lcd_get_line(int row);
 
 #ifdef __cplusplus
 }

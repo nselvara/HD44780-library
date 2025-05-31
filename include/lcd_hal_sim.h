@@ -17,19 +17,15 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef lcd_hal_xilinx_gpio_H_
-#define lcd_hal_xilinx_gpio_H_
+#ifndef LCD_HAL_SIM_H_
+#define LCD_HAL_SIM_H_
 
 #include "lcd_hal.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+extern const lcd_hal_t lcd_hal_sim;
 
-extern const lcd_hal_t lcd_hal_xilinx_gpio;
+void lcd_snapshot(void);
+void lcd_draw_bar(uint8_t row, uint8_t filled_cols, uint8_t total_cols);
+void lcd_scroll_left(void);
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif // lcd_hal_xilinx_gpio_H_
+#endif // LCD_HAL_SIM_H_
