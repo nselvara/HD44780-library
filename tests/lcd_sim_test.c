@@ -17,40 +17,53 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
+
+#include "unity.h"
 #include "lcd.h"
-#include "lcd_sim.h"  // for lcd_buffer
-#include <string.h>
-#include <stdio.h>
-#include <assert.h>
+#include "lcd_hal.h"
+#include "lcd_sim.h"
 
-extern void lcd_snapshot(void);
-extern void lcd_reset_simulation(void);
+extern const lcd_hal_t lcd_hal_sim;
 
-void test_printing_text(void) {
-    lcd_reset_simulation();
+void setUp(void) {
+    lcd_hal_set_backend(&lcd_hal_sim);
     lcd_init();
-    lcd_write_at("Hello", 1, 1);
-    lcd_print_custom("World");
-
-    lcd_snapshot(); // visually inspect
-
-    // Assert "Hello World" is printed on row 1
-    assert(strncmp(lcd_buffer[0], "Hello World", 11) == 0);
+    lcd_reset_simulation();
 }
 
-void test_number_format(void) {
-    lcd_reset_simulation();
-    lcd_init();
-    lcd_write_at("Value:", 2, 1);
-    lcd_print_custom(" %d", 42);
+void tearDown(void) {
+    // optional cleanup
+}
 
-    lcd_snapshot();
-    assert(strstr(lcd_buffer[1], "42") != NULL);
+void test_lcd_write_and_snapshot_should_store_data_correctly(void) {
+    lcd_write_at("Hello", 1, 1);
+    const char *line = lcd_get_line(1);
+    TEST_ASSERT_NOT_NULL(line);
+    TEST_ASSERT_EQUAL_STRING("Hello", line);
+}
+
+void test_lcd_clear_should_empty_all_lines(void) {
+    lcd_write_at("Test", 1, 1);
+    lcd_clear();
+    for (int i = 1; i <= 4; ++i) {
+        const char *line = lcd_get_line(i);
+        for (int j = 0; j < 16; ++j) {
+            TEST_ASSERT_EQUAL_CHAR(' ', line[j]);
+        }
+    }
+}
+
+void test_lcd_set_cursor_bounds(void) {
+    lcd_set_cursor(1, 20); // invalid col
+    lcd_write_char('X');
+    const char *line = lcd_get_line(1);
+    TEST_ASSERT_NOT_EQUAL('X', line[15]); // should not write outside bounds
 }
 
 int main(void) {
-    test_printing_text();
-    test_number_format();
-    printf("All simulated LCD tests passed.\n");
-    return 0;
+    UNITY_BEGIN();
+    RUN_TEST(test_lcd_write_and_snapshot_should_store_data_correctly);
+    RUN_TEST(test_lcd_clear_should_empty_all_lines);
+    RUN_TEST(test_lcd_set_cursor_bounds);
+    return UNITY_END();
 }

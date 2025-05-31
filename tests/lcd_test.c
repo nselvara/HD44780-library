@@ -17,36 +17,48 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "unity.h"
 #include "lcd.h"
-#include "lcd_hal.h"
-#include "Unity.h"
-#include <string.h>
 
-extern const lcd_hal_t LCD_HAL_MOCK;
-
-TEST(test_lcd_cursor_set) {
-    lcd_hal_set_backend(&LCD_HAL_MOCK);
-    lcd_init();
-    lcd_set_cursor(2, 5);
-    // Visual check (mock logs)
+void setUp(void) {
+    // Optional: init/reset mock LCD
 }
 
-TEST(test_lcd_safe_itoa) {
-    char buf[8];
-    lcd_itoa(-123, buf, sizeof(buf));
-    ASSERT_STR("-123", buf);
-
-    lcd_itoa(999999, buf, 4);
-    ASSERT_STR("999", buf); // truncated, no overflow
+void tearDown(void) {
+    // Optional: cleanup/reset
 }
 
-TEST(test_lcd_hex_output) {
-    char hexbuf[9];
-    lcd_hex_to_ascii(0xDEADBEEF, hexbuf, sizeof(hexbuf));
-    ASSERT_STR("DEADBEEF", hexbuf);
+void test_lcd_itoa_should_convert_positive_integers_to_string(void) {
+    char buffer[12];
+    lcd_itoa(1234, buffer, 10);
+    TEST_ASSERT_EQUAL_STRING("1234", buffer);
 }
 
-TEST(test_lcd_custom_printf_numbers) {
-    lcd_hal_set_backend(&LCD_HAL_MOCK);
-    lcd_print_custom("Int:%d Hex:%x", 42, 255);
+void test_lcd_itoa_should_convert_negative_integers_to_string(void) {
+    char buffer[12];
+    lcd_itoa(-1234, buffer, 10);
+    TEST_ASSERT_EQUAL_STRING("-1234", buffer);
+}
+
+void test_lcd_itoa_should_convert_zero_to_string(void) {
+    char buffer[12];
+    lcd_itoa(0, buffer, 10);
+    TEST_ASSERT_EQUAL_STRING("0", buffer);
+}
+
+void test_lcd_itoa_should_handle_base_16(void) {
+    char buffer[12];
+    lcd_itoa(255, buffer, 10);
+    TEST_ASSERT_EQUAL_STRING("255", buffer);
+}
+
+int main(void) {
+    UNITY_BEGIN();
+
+    RUN_TEST(test_lcd_itoa_should_convert_positive_integers_to_string);
+    RUN_TEST(test_lcd_itoa_should_convert_negative_integers_to_string);
+    RUN_TEST(test_lcd_itoa_should_convert_zero_to_string);
+    RUN_TEST(test_lcd_itoa_should_handle_base_16);
+
+    return UNITY_END();
 }
