@@ -10,24 +10,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
 
-      - name: Install dependencies
-        run: sudo apt-get install -y cmake build-essential
+      - name: Install tools
+        run: sudo apt update && sudo apt install -y cmake gcc python3
 
-      - name: Build project
+      # Build with all supported HALs
+      - name: Build with Mock HAL
+        run: python build_and_deploy.py mock
+
+      - name: Build with Sim HAL
+        run: python build_and_deploy.py sim
+
+      - name: Build with Xilinx HAL
+        run: python build_and_deploy.py xilinx
+
+      # Package artifacts
+      - name: Create release packages
         run: |
-          mkdir build && cd build
-          cmake .. -DUSE_SIMULATION=ON
-          make
+          zip -j hd44780-mock-v${GITHUB_REF#refs/tags/v}.zip build/demo/*mock*
+          zip -j hd44780-sim-v${GITHUB_REF#refs/tags/v}.zip build/demo/*sim*
+          zip -j hd44780-xilinx-v${GITHUB_REF#refs/tags/v}.zip build/demo/*xilinx*
 
-      - name: Upload binaries
+      # Upload to GitHub release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/lcd_demo_mock_effects
-            build/lcd_demo_mock_format
-            build/lcd_demo_xilinx
-            build/lcd_test
+            hd44780-mock-v*.zip
+            hd44780-sim-v*.zip
+            hd44780-xilinx-v*.zip
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
