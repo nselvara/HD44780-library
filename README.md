@@ -34,38 +34,87 @@ Supports custom HAL backends, simulation, printf-style output, and flexible demo
 
 ### Building (with CMake)
 
+#### Usage
+
+Clone the repository and select the HAL backend using the provided helper script:
+
 ```bash
 git clone https://github.com/nselvara/HD44780-library.git
 cd HD44780-library
-mkdir build && cd build
-cmake .. -DUSE_SIMULATION=ON
-make
+python build_and_deploy.py [mock|stub|sim|xilinx]
 ```
 
-### Demo Binaries
-
-- `lcd_demo` – basic hello world
-- `lcd_demo_format` – formatted output
-- `lcd_demo_xilinx` – target-specific
+Example:
 
 ```bash
-./lcd_demo
+python build_and_deploy.py mock
 ```
 
-You'll see simulated output like:
+This will:
+
+- Clean the build/ directory (if it exists)
+- Configure CMake with the correct HAL flags
+- Build the library and relevant demos/tests
+
+Only one HAL can be enabled at a time. The script enforces this for you.
+
+#### Demo Examples
+
+| Demo Binary                | Description                             |
+|----------------------------|-----------------------------------------|
+| `lcd_demo_mock.exe`        | Full-featured text/printf-style demo    |
+| `lcd_demo_xilinx.exe`      | Uses Xilinx GPIO HAL (if selected)      |
+
+To run the mock demo (after building with `build_and_deploy.py mock`):
+
+```bash
+./build/demo/Debug/lcd_demo_mock.exe
+```
+
+Expected output:
 
 ```terminal
------ LCD STATE -----
-CPU Temp: 37.80°C
-Hello, World!
-                
-----------------------
+[Mock HAL] Init
+[Mock HAL] CMD 0x01
+...
+=== LCD SNAPSHOT ===
+Welcome to
+HD44780 Demo
+...
+====================
 ```
+
+> ℹ️ Use `.Build\demo\Debug\lcd_demo_mock.exe` on Windows CMD or PowerShell.
+
+#### Using the Xilinx HAL
+
+In your code to use the Xilinx GPIO backend:
+
+```c
+lcd_hal_set_backend(&lcd_hal_xilinx_gpio);
+lcd_init();
+```
+
+Then to build using the Xilinx GPIO interface:
+
+```bash
+python build_and_deploy.py xilinx
+```
+
+Both are available and interchangeable.
 
 ### Run Unit Tests
 
+Tests use the simulation or stub HAL and verify LCD state with assertions.
+
 ```bash
-ctest
+python build_and_deploy.py mock --test
+```
+
+or
+
+```bash
+python build_and_deploy.py sim --test
 ```
 
 All tests run with simulated LCD buffer and assert correctness.
@@ -94,7 +143,6 @@ lcd_print_custom("Temp: %d°C", 27);  // My own implementation (it uses less res
 lcd_print_std("Temp: %.2f°C", 27.5); // Standard via vsnprintf
 ```
 
-
 ---
 
 ## 🔧 API Overview
@@ -120,31 +168,13 @@ lcd_print_std("Temp: %.2f°C", 27.5); // Standard via vsnprintf
 
 ---
 
-### Using the Xilinx HAL
-
-To build using the Xilinx GPIO interface:
-
-```bash
-cmake -B build -DUSE_XILINX_HAL=ON
-cmake --build build
-```
-
-Then in your code:
-
-```c
-lcd_hal_set_backend(&LCD_HAL_XILINX_GPIO);
-lcd_init();
-```
-
-Both are available and interchangeable.
-
 ## Project Structure
 
 ```tree
 HD44780-library/
 ├── CMakeLists.txt
 ├── include/                # Public headers
-│   └── lcd.h, lcd_hal.h, lcd_features.h, LCD_HAL_XILINX_GPIO.h
+│   └── lcd.h, lcd_hal.h, lcd_features.h, lcd_hal_xilinx_gpio.h
 ├── hal/                    # HAL implementations (sim, Xilinx, etc.)
 │   └── lcd_hal_*.c
 ├── src/                    # Core implementation files
@@ -163,10 +193,10 @@ To use this library in a Xilinx platform (e.g. with PLB GPIO):
 
 ```c
 #include "lcd.h"
-#include "LCD_HAL_XILINX_GPIO.h"
+#include "lcd_hal_xilinx_gpio.h"
 
 int main() {
-    lcd_hal_set_backend(&LCD_HAL_XILINX_GPIO);
+    lcd_hal_set_backend(&lcd_hal_xilinx_gpio);
     lcd_init();
     lcd_write("Hello from FPGA!");
     while (1);
@@ -186,3 +216,17 @@ This project is licensed under the **LGPL v3.0**.
 You can use this library in both open and closed-source projects, as long as you publish modifications to the library itself.
 
 See [LICENSE](./LICENSE) for full terms.
+
+### Third-Party Licenses
+
+#### Unity Test Framework
+
+The test framework used in this project, Unity, is licensed under the MIT License:
+
+See [Unity LICENSE.txt](./third_party/unity/LICENSE.txt) for details.
+
+#### AMD/Xilinx Embedded Software (embeddedsw)
+
+This project uses components from Xilinx/AMD embeddedsw, which are licensed under the MIT License:
+
+See [embeddedsw LICENSE.txt](./third_party/xilinx/embeddedsw/LICENSE.txt) for details.
