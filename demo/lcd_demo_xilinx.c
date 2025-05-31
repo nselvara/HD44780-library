@@ -19,6 +19,7 @@
 
 #include "lcd.h"
 #include "lcd_hal.h"
+#include "lcd_hal_sim.h"
 
 extern const lcd_hal_t lcd_hal_xilinx;
 

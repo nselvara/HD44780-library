@@ -25,10 +25,10 @@
 #include <stdlib.h>
 
 #ifdef _WIN32
-  #include <windows.h>
-  #define sleep(x) Sleep((x)*1000)
+    #include <windows.h>
+    #define sleep(x) Sleep((x)*1000)
 #else
-  #include <unistd.h>
+    #include <unistd.h>
 #endif
 
 extern const lcd_hal_t lcd_hal_mock;
@@ -66,11 +66,16 @@ int main(void) {
     lcd_set_cursor(4, 1);
     lcd_write("Loading:");
 
-    for (int i = 1; i <= 16; ++i) {
+    for (int i = 1; i <= 2; ++i) {
         lcd_set_cursor(4, i);
         lcd_write_char('|');
         lcd_snapshot();
-        usleep(100000); // 100ms delay for animation
+        
+        #ifdef _WIN32
+            Sleep(100); // 100ms delay for animation
+        #else
+            usleep(100000); // 100ms delay for animation
+        #endif
     }
 
     lcd_set_cursor(4, 10);
