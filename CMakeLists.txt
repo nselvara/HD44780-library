@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-project(HD44780_LCD_Library C)
+cmake_minimum_required(VERSION 3.14)
+project(HD44780-Library C)
 
 set(CMAKE_C_STANDARD 99)
 
@@ -8,55 +8,52 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-# Library source files
-set(LIB_SRC
-    src/lcd.c
-    src/lcd_backend.c
-    src/lcd_hal.c
-    src/lcd_features.c
-    src/lcd_sim.c
-    src/lcd_utils_safe.c
-)
+enable_testing()
 
-# Public include headers
-include_directories(include)
+option(HD44780_USE_HAL_SIM    "Use Simulation HAL" OFF)
+option(HD44780_USE_HAL_XILINX "Use Xilinx GPIO HAL" OFF)
+option(HD44780_USE_HAL_MOCK   "Use Mock HAL" OFF)
+option(HD44780_USE_HAL_STUB   "Use Stub HAL" OFF)
 
-# Create core library
-add_library(hd44780_lcd STATIC ${LIB_SRC})
+# ---- Enforce only one HAL backend is active ----
+set(hal_count 0)
 
-# ----------- Demo Targets ------------
+if(HD44780_USE_HAL_SIM)
+  math(EXPR hal_count "${hal_count} + 1")
+endif()
+if(HD44780_USE_HAL_XILINX)
+  math(EXPR hal_count "${hal_count} + 1")
+endif()
+if(HD44780_USE_HAL_MOCK)
+  math(EXPR hal_count "${hal_count} + 1")
+endif()
+if(HD44780_USE_HAL_STUB)
+  math(EXPR hal_count "${hal_count} + 1")
+endif()
 
-# Mock Demo
-add_executable(lcd_demo_mock demo/lcd_demo_mock.c)
-target_sources(lcd_demo_mock PRIVATE hal/lcd_hal_mock.c)
-target_link_libraries(lcd_demo_mock PRIVATE hd44780_lcd)
+if(hal_count GREATER 1)
+  message(FATAL_ERROR "Only one HD44780 HAL backend may be enabled at a time.")
+elseif(hal_count EQUAL 0)
+  message(FATAL_ERROR "You must enable exactly one HD44780 HAL backend.")
+endif()
 
-# Xilinx Demo
-add_executable(lcd_demo_xilinx demo/lcd_demo_xilinx.c)
-target_sources(lcd_demo_xilinx PRIVATE hal/lcd_hal_xilinx_gpio.c)
-target_link_libraries(lcd_demo_xilinx PRIVATE hd44780_lcd)
-
-# Optional: install target (if desired)
-install(TARGETS hd44780_lcd DESTINATION lib)
-install(DIRECTORY include/ DESTINATION include)
-
-# ----------- Unit Test Support -----------
-
-# Unity test framework
-add_subdirectory(third_party/Unity)
-
-# Unit Test: lcd_test.c
-add_executable(lcd_test tests/lcd_test.c)
-target_sources(lcd_test PRIVATE hal/lcd_hal_mock.c)
-target_link_libraries(lcd_test PRIVATE hd44780_lcd unity)
-target_include_directories(lcd_test PRIVATE third_party/Unity/src)
-
-# Unit Test: lcd_sim_test.c
-add_executable(lcd_sim_test tests/lcd_sim_test.c)
-target_link_libraries(lcd_sim_test PRIVATE hd44780_lcd unity)
-target_include_directories(lcd_sim_test PRIVATE third_party/Unity/src)
+# Add subdirectories
+add_subdirectory(src)
+add_subdirectory(hal)
+add_subdirectory(demo)
+add_subdirectory(tests)
+add_subdirectory(third_party/unity)
 
 # ----------- Platform Defines -----------
 if(WIN32)
   add_definitions(-DWIN32_LEAN_AND_MEAN)
+endif()
+
+if(UNIX)
+  add_definitions(-DUNIX)
+endif()
+
+if(HD44780_USE_HAL_XILINX AND WIN32)
+  # Add mock Xilinx headers for Windows development
+  include_directories(${CMAKE_SOURCE_DIR}/hal/mock_xilinx_includes)
 endif()
