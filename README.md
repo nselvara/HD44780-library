@@ -60,18 +60,26 @@ Only one HAL can be enabled at a time. The script enforces this for you.
 
 #### Demo Examples
 
-| Demo Binary                | Description                             |
-|----------------------------|-----------------------------------------|
-| `lcd_demo_mock.exe`        | Full-featured text/printf-style demo    |
-| `lcd_demo_xilinx.exe`      | Uses Xilinx GPIO HAL (if selected)      |
+| Demo Binary (Linus) | Demo Binary (Windows) | Description                          |
+| ------------------- | --------------------- | ------------------------------------ |
+| `lcd_demo_mock`     | `lcd_demo_mock.exe`   | Full-featured text/printf-style demo |
+| `lcd_demo_xilinx`   | `lcd_demo_xilinx.exe` | Uses Xilinx GPIO HAL (if selected)   |
 
 To run the mock demo (after building with `build_and_deploy.py mock`):
 
-```bash
-./build/demo/Debug/lcd_demo_mock.exe
+##### Windows
+
+```powershell
+.Build\demo\Debug\lcd_demo_mock.exe
 ```
 
-Expected output:
+##### Linux
+
+```bash
+./build/demo/lcd_demo_mock
+```
+
+##### Expected output
 
 ```terminal
 [Mock HAL] Init
@@ -83,8 +91,6 @@ HD44780 Demo
 ...
 ====================
 ```
-
-> ℹ️ Use `.Build\demo\Debug\lcd_demo_mock.exe` on Windows CMD or PowerShell.
 
 #### Using the Xilinx HAL
 
@@ -139,19 +145,29 @@ For example, for Xilinx MicroBlaze you'd call `XGpio_DiscreteWrite()` and `uslee
 ## Two `lcd_print_xy()` Implementations
 
 ```c
-lcd_print_custom("Temp: %d°C", 27);  // My own implementation (it uses less resources)
-lcd_print_std("Temp: %.2f°C", 27.5); // Standard via vsnprintf
+// My own implementation (it uses less resources, as it doesn't implement everything)
+lcd_print_custom("Temp: %d°C", 27);
+// Standard via vsnprintf
+lcd_print_std("Temp: %.2f°C", 27.5);
 ```
 
 ---
 
 ## 🔧 API Overview
 
-- `lcd_init_with_default_hal()` – Initializes the default HAL (selected by CMake)
-- `lcd_init_auto_or_manual()` – Only sets HAL if one hasn’t been set
-- `lcd_write`, `lcd_write_at`, `lcd_set_cursor`
-- `lcd_print_custom`, `lcd_print_std` (printf-style output)
-- `lcd_draw_bar`, `lcd_scroll_left/right`, etc.
+| Function                        | Description                                     | Category        |
+| ------------------------------- | ----------------------------------------------- | --------------- |
+| `lcd_init_with_default_hal()`   | Initializes the default HAL (selected by CMake) | Initialization  |
+| `lcd_init_auto_or_manual()`     | Only sets HAL if one hasn't been set            | Initialization  |
+| `lcd_write(char*)`              | Writes a string at current cursor position      | Basic Output    |
+| `lcd_write_at(char*, row, col)` | Writes a string at specific position            | Basic Output    |
+| `lcd_set_cursor(row, col)`      | Sets the cursor position                        | Cursor Control  |
+| `lcd_print_custom(fmt, ...)`    | Lightweight printf-style formatted output       | Formatting      |
+| `lcd_print_std(fmt, ...)`       | Standard printf with full formatting support    | Formatting      |
+| `lcd_draw_bar(len, max)`        | Draws a progress bar                            | Graphics        |
+| `lcd_scroll_left()`             | Scrolls display left                            | Display Control |
+| `lcd_scroll_right()`            | Scrolls display right                           | Display Control |
+| `lcd_clear()`                   | Clears display and homes cursor                 | Display Control |
 
 ---
 
