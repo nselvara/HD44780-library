@@ -17,16 +17,15 @@
  * along with this library. If not, see <https://www.gnu.org/licenses/>.
  */
 
-// Add at the top of the file
 #ifdef _WIN32
-#include <windows.h> // For Sleep()
+    #include <windows.h> // For Sleep()
 #else
-#include <unistd.h> // For usleep()
+    #include <unistd.h> // For usleep()
 #endif
 
 #include "lcd_hal.h"
-#include "xgpio.h"
-#include "xparameters.h"
+#include "xparameters.h" // Points to mock-xgpio.h, use correct one
+#include "xgpio.h" // Points to mock-xgpio.h, use correct one
 
 #define LCD_CHANNEL 1
 
@@ -43,13 +42,13 @@ static void xilinx_send_data(uint8_t val) {
 }
 
 static void xilinx_delay(uint32_t ms) {
-#ifdef _WIN32
-    // Windows implementation
-    Sleep(ms); // Windows uses milliseconds
-#else
-    // UNIX/Linux implementation
-    usleep(ms * 1000); // usleep uses microseconds
-#endif
+    #ifdef _WIN32
+        // Windows implementation
+        Sleep(ms); // Windows uses milliseconds
+    #else
+        // UNIX/Linux implementation
+        usleep(ms * 1000); // usleep uses microseconds
+    #endif
 }
 
 static void xilinx_deinit(void) {}
