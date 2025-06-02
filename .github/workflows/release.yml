@@ -31,18 +31,27 @@ jobs:
       # Package artifacts
       - name: Create release packages
         run: |
-          zip -j hd44780-mock-v${GITHUB_REF#refs/tags/v}.zip build/demo/*mock*
-          zip -j hd44780-sim-v${GITHUB_REF#refs/tags/v}.zip build/demo/*sim*
-          zip -j hd44780-xilinx-v${GITHUB_REF#refs/tags/v}.zip build/demo/*xilinx*
+          # First, see what files actually exist
+          echo "Available files in build/demo:"
+          find build/demo -type f -ls
+          
+          # Create directories in case they don't exist
+          mkdir -p release_packages
+          
+          # More robust approach with find
+          find build/demo -name "*mock*" -type f -exec zip -j "release_packages/hd44780-mock-v${GITHUB_REF#refs/tags/v}.zip" {} \;
+          find build/demo -name "*sim*" -type f -exec zip -j "release_packages/hd44780-sim-v${GITHUB_REF#refs/tags/v}.zip" {} \;
+          find build/demo -name "*xilinx*" -type f -exec zip -j "release_packages/hd44780-xilinx-v${GITHUB_REF#refs/tags/v}.zip" {} \;
+          
+          # List created packages
+          echo "Created packages:"
+          ls -la release_packages/
 
       # Upload to GitHub release
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            hd44780-mock-v*.zip
-            hd44780-sim-v*.zip
-            hd44780-xilinx-v*.zip
+          files: release_packages/*.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
