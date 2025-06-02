@@ -157,7 +157,7 @@ void lcd_itoa(int num, char *buf, size_t bufsize)
 }
 
 const char *lcd_hex_to_ascii(uint32_t hex, char *buf, size_t bufsize)
-{ // Changed 'buffer'/'buffersize' to 'buf'/'bufsize'
+{
     snprintf(buf, bufsize, "%08X", hex);
     return buf;
 }
